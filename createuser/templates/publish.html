@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block title %} Publicar producto {% endblock %}
+{% block content %}
+
+    <form method="POST">
+        Publicar un producto
+        {% csrf_token %}
+        {{ forms.as_p }}
+        <input type="submit" value="Publicar"><br>
+        <b>{{ mensaje }}</b>
+    </form>
+{% endblock %}
