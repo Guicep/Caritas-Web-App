@@ -59,6 +59,14 @@ def publish(request):
     else:
         return render(request, "publish.html", context)
 
+def detalle_publicacion(request):
+    item = Publicacion.objects.filter(id=1)  # , id_usuario=request.user.id
+    # print(request.user.id)
+    data = {
+        'item':item[0]
+    }
+    return render(request, 'detalle.html',data)
+
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
     return len(cadena) >= 6
