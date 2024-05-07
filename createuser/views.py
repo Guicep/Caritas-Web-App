@@ -1,8 +1,8 @@
-from django.shortcuts import render
-from .models import Usuario
+from django.shortcuts import render, redirect
+from .models import Usuario, Publicacion
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm
+from .forms import UsuarioForm, PublicacionForm
 
 # Create your views here.
 def register(request):
@@ -39,7 +39,25 @@ def welcome(request):
     return render(request, "welcome.html")
 
 def publish(request):
-    return render(request, "publish.html")
+    context = {"forms" : PublicacionForm()}
+    if (request.method == "POST"):
+        not_bad_fields = True
+        id_usuario_actual = 1 # Hace referencia al usuario logueado y a quien asocia la publicacion
+        if (not_bad_fields and same_post_title(request.POST.get('titulo'), id_usuario_actual)):
+            not_bad_fields = set_context_error_mensaje(context, "La publicacion tiene titulo repetido")
+
+        if(not not_bad_fields):
+            return render(request, "publish.html", context)
+        else:
+            publicacion = Publicacion(titulo = request.POST.get("titulo"),
+                              foto = request.POST.get("foto"),
+                              descripcion = request.POST.get("descripcion"),
+                              id_usuario = 1
+                              )
+            publicacion.save()
+            return redirect("http://127.0.0.1:8000/welcome/")
+    else:
+        return render(request, "publish.html", context)
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
@@ -60,3 +78,6 @@ def transformar_fecha(pedido):
 def set_context_error_mensaje(context, mensaje):
     context['mensaje'] = mensaje
     return False
+
+def same_post_title(pedido, id_usuario_actual):
+    return Publicacion.objects.filter(titulo=pedido, id_usuario=id_usuario_actual).exists()

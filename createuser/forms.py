@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario
+from .models import Usuario, Publicacion
 from django.forms import TextInput
 
 class UsuarioForm(forms.ModelForm):
@@ -26,3 +26,19 @@ class UsuarioForm(forms.ModelForm):
     class Meta:
         model = Usuario
         fields = ['nombre', 'apellido', 'dni', 'correo', 'password']
+
+class PublicacionForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
+    # Configuracion de los inputs como en html
+    textInputTitulo = TextInput(attrs={"placeholder": "Titulo", "maxlength" : 100})
+    textInputDescripcion = TextInput(attrs={"placeholder": "Descripcion", "maxlength" : 200})
+    # Campos no relacionados al modelo
+    # Asignacion de la configuracion
+    titulo = forms.CharField(widget=textInputTitulo, label='')
+    descripcion = forms.CharField(widget=textInputDescripcion, label='')
+    foto = forms.ImageField(label='Foto del producto')
+    class Meta:
+        model = Publicacion
+        fields = ['titulo', 'descripcion', 'foto']
