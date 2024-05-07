@@ -36,7 +36,11 @@ def register(request):
         return render(request, "register.html", context)
 
 def welcome(request):
-    return render(request, "welcome.html")
+    datos = Publicacion.objects.all()
+    data = {
+        'datos': datos
+    }
+    return render(request, 'welcome.html', data)
 
 def publish(request):
     context = {"forms" : PublicacionForm()}
@@ -66,6 +70,8 @@ def detalle_publicacion(request):
         'item':item[0]
     }
     return render(request, 'detalle.html',data)
+
+
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
