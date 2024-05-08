@@ -42,3 +42,11 @@ class PublicacionForm(forms.ModelForm):
     class Meta:
         model = Publicacion
         fields = ['titulo', 'descripcion', 'foto']
+
+class LoginForm(forms.Form):
+    # Configuracion de los inputs como en html
+    textInputCorreo = TextInput(attrs={"placeholder": "Usuario", "maxlength" : 50, "name" : "username"})
+    textInputPassword = TextInput(attrs={"type" : "password", "placeholder": "Contraseña", "maxlength" : 30, "name" : "password"})
+    # Campos
+    correo = forms.CharField(widget=textInputCorreo, label='')
+    password = forms.CharField(widget=textInputPassword, label='')
