@@ -1,6 +1,9 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% block content %}
     {% for d in datos%}
-        {{d.titulo}} <br>
+        {{d.titulo}} <a class="button" href="{% url 'detalle_publicacion' d.id %}">
+        <span>Ver</span>
+    </a>
+    <br>
     {% endfor%}
 {% endblock %}

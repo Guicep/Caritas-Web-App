@@ -2,4 +2,9 @@
 {% block content %}
     {{item.titulo}} <br>
     {{item.descripcion}}
+{% if item.id_usuario == request.user.id %}
+<a class="button" href="{% url 'borrar' item.id %}">
+        <span>borrar</span>
+</a>
+{% endif%}
 {% endblock %}

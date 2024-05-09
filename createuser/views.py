@@ -112,13 +112,18 @@ def publish(request):
     else:
         return render(request, "publish.html", context)
 
-def detalle_publicacion(request):
-    item = Publicacion.objects.filter(id=1)  # , id_usuario=request.user.id
+def detalle_publicacion(request,pk):
+    item = Publicacion.objects.filter(id=pk)  # , id_usuario=request.user.id
     # print(request.user.id)
     data = {
         'item':item[0]
     }
     return render(request, 'detalle.html',data)
+
+def borrar(request,pk):
+    item = Publicacion.objects.get(id=pk)
+    item.delete()
+    return redirect('welcome')
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
