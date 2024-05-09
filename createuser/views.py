@@ -75,9 +75,9 @@ def site_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return render(request, "welcome.html")
+            return redirect("welcome")
         else:
-            context["mensaje"] = "El mail o la contraseña son erroneos"
+            context["mensaje"] = "Los datos ingresados son incorrectos"
             return render(request, "registration/login.html", context)
     else:
         return render(request, "registration/login.html", context)
@@ -86,7 +86,7 @@ def site_logout(request):
     logout(request)
     return redirect("mylogin")
 
-@login_required
+@login_required(redirect_field_name=None)
 def welcome(request):
     datos = Publicacion.objects.all()
     data = {
@@ -94,7 +94,7 @@ def welcome(request):
     }
     return render(request, 'welcome.html', data)
 
-@login_required
+@login_required(redirect_field_name=None)
 def publish(request):
     context = {"forms" : PublicacionForm()}
     if (request.method == "POST"):

@@ -1,0 +1,5 @@
+# Codigo en byte
+__pycache__/*
+*.pyc
+# Base de datos
+*.sqlite3

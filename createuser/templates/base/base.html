@@ -16,23 +16,18 @@
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          {% if not request.user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="http://127.0.0.1:8000/register/">Registrarse</a>
-          </li>
-          {% endif %}
-          <li class="nav-item">
-            <a class="nav-link" href="http://127.0.0.1:8000/welcome/">Inicio</a>
+            <a class="nav-link" href="{% url 'welcome' %}">Inicio</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="">Contacto</a>
           </li>
           {% if request.user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="http://127.0.0.1:8000/publish/">Publicar producto</a>
+            <a class="nav-link" href="{% url 'publish' %}">Publicar producto</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="http://127.0.0.1:8000/logout/">Cerrar sesion</a>
+            <a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a>
           </li>
           {% endif %}
           {% if request.user.is_superuser %}

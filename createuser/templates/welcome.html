@@ -1,6 +1,6 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% block content %}
-{% for d in datos%}
-{{d.titulo}} <br>
-{% endfor%}
+    {% for d in datos%}
+        {{d.titulo}} <br>
+    {% endfor%}
 {% endblock %}
