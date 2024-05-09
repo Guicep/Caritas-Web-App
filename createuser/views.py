@@ -125,6 +125,14 @@ def borrar(request,pk):
     item.delete()
     return redirect('welcome')
 
+
+def ver_publicaciones(request):
+    mis_publicaciones=Publicacion.objects.filter(id_usuario=request.user.id)
+    data = {
+        'item':mis_publicaciones
+    }
+    return render(request, 'ver_publicaciones.html', data)
+
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
     return len(cadena) >= 6
