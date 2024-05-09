@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Usuario, Publicacion
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
@@ -39,6 +39,33 @@ def register(request):
             return render(request, "registration/register.html", context)
     else:
         return render(request, "registration/register.html", context)
+
+def staffregister(request):
+    context = {"forms" : StaffForm()}
+    if request.method == "POST":
+        not_bad_fields = True
+        if (not_bad_fields and is_correo_registered(request.POST.get("correo"))):
+            not_bad_fields = set_context_error_mensaje(context, "El correo ya se encuentra registrado")
+        if (not_bad_fields and not password_with_six_or_more_char(request.POST.get('password'))):
+            not_bad_fields = set_context_error_mensaje(context, "La contraseña debe tener al menos 6 caracteres")
+        if(not not_bad_fields):
+            return render(request, "registration/staffregister.html", context)
+        else:
+            extra_fields = {}
+            extra_fields["nombre"] = request.POST.get("nombre")
+            extra_fields["apellido"] = request.POST.get("apellido")
+            extra_fields["nacimiento"] = "1990-01-01"
+            Usuario.objects.create_staff(request.POST.get("correo"),
+                                         request.POST.get("password"),
+                                        
+                                         **extra_fields)
+            context['mensaje'] = "El registro fue exitoso"
+            return render(request, "registration/staffregister.html", context)
+    else:
+        return render(request, "registration/staffregister.html", context)        
+
+
+
 
 def site_login(request):
     context = {"forms" : LoginForm(), "mensaje" : ""}

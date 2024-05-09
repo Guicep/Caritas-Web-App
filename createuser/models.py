@@ -52,6 +52,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'correo'
     REQUIRED_FIELDS = ['nacimiento']
 
+
+
 class Publicacion(models.Model):
     titulo = models.CharField(max_length=100)
     foto = models.ImageField()

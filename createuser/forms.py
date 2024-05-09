@@ -50,3 +50,19 @@ class LoginForm(forms.Form):
     # Campos
     correo = forms.CharField(widget=textInputCorreo, label='')
     password = forms.CharField(widget=textInputPassword, label='')
+
+class StaffForm(forms.ModelForm):
+    # Configuracion de los inputs como en html
+    textInputNombre = TextInput(attrs={"placeholder": "Nombres", "maxlength" : 30})
+    textInputApellido = TextInput(attrs={"placeholder": "Apellidos", "maxlength" : 20})
+    textInputCorreo = TextInput(attrs={"placeholder": "Correo", "maxlength" : 50})
+    textInputPassword = TextInput(attrs={"placeholder": "Contraseña", "maxlength" : 30})
+
+    # Asignacion de la configuracion
+    nombre = forms.CharField(widget=textInputNombre, label='')
+    apellido = forms.CharField(widget=textInputApellido, label='')
+    correo = forms.CharField(widget=textInputCorreo, label='')
+    password = forms.CharField(widget=textInputPassword, label='')
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellido', 'correo', 'password']

@@ -35,6 +35,11 @@
             <a class="nav-link" href="http://127.0.0.1:8000/logout/">Cerrar sesion</a>
           </li>
           {% endif %}
+          {% if request.user.is_superuser %}
+          <li class="nav-item">
+            <a class="nav-link" href="http://127.0.0.1:8000/staffregister/">Registrar Ayudante</a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </nav>
