@@ -27,15 +27,15 @@
             <a class="nav-link" href="{% url 'publish' %}">Publicar producto</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a>
           </li>
           {% endif %}
           {% if request.user.is_superuser %}
           <li class="nav-item">
-            <a class="nav-link" href="http://127.0.0.1:8000/staffregister/">Registrar Ayudante</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="http://127.0.0.1:8000/verpublicaciones/">ver mis publicaciones</a>
+            <a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a>
           </li>
           {% endif %}
         </ul>

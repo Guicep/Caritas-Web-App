@@ -1,9 +1,9 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% block content %}
-{% if not data   %}
-    no tiees públicaciones
+{% if not item   %}
+    No tienes públicaciones
 {% else %}
-    {% for p in data %}
+    {% for p in item %}
         {{p.titulo}}{{p.descripcion}} <br>
     {% endfor%}
 {% endif %}
