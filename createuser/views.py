@@ -62,7 +62,17 @@ def staffregister(request):
             context['mensaje'] = "El registro fue exitoso"
             return render(request, "registration/staffregister.html", context)
     else:
-        return render(request, "registration/staffregister.html", context)
+        return render(request, "registration/staffregister.html", context)       
+
+
+def userlist(request):
+    datos=Usuario.objects.filter(is_staff = 0,is_superuser = 0)
+    return render(request, "userlist.html",{"datos":datos})
+
+
+
+#Usuario.objects.all()
+
 
 def site_login(request):
     context = {"forms" : LoginForm(), "mensaje" : ""}
