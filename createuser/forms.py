@@ -12,7 +12,7 @@ class UsuarioForm(forms.ModelForm):
     textInputFecha = TextInput(attrs={"placeholder": "Fecha", "maxlength" : 20})
     textInputDNI = TextInput(attrs={"placeholder": "DNI", "maxlength" : 8})
     textInputCorreo = TextInput(attrs={"placeholder": "Correo", "maxlength" : 50})
-    textInputPassword = TextInput(attrs={"placeholder": "Contraseña", "maxlength" : 30})
+    textInputPassword = TextInput(attrs={"type" : "password", "placeholder": "Contraseña", "maxlength" : 30})
     # Campos no relacionados al modelo
     dia = forms.CharField(widget=textInputDia, label="")
     mes = forms.CharField(widget=textInputMes, label="")
@@ -56,7 +56,7 @@ class StaffForm(forms.ModelForm):
     textInputNombre = TextInput(attrs={"placeholder": "Nombres", "maxlength" : 30})
     textInputApellido = TextInput(attrs={"placeholder": "Apellidos", "maxlength" : 20})
     textInputCorreo = TextInput(attrs={"placeholder": "Correo", "maxlength" : 50})
-    textInputPassword = TextInput(attrs={"placeholder": "Contraseña", "maxlength" : 30})
+    textInputPassword = TextInput(attrs={"type" : "password", "placeholder": "Contraseña", "maxlength" : 30})
 
     # Asignacion de la configuracion
     nombre = forms.CharField(widget=textInputNombre, label='')

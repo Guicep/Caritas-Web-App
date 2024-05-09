@@ -62,10 +62,7 @@ def staffregister(request):
             context['mensaje'] = "El registro fue exitoso"
             return render(request, "registration/staffregister.html", context)
     else:
-        return render(request, "registration/staffregister.html", context)        
-
-
-
+        return render(request, "registration/staffregister.html", context)
 
 def site_login(request):
     context = {"forms" : LoginForm(), "mensaje" : ""}
