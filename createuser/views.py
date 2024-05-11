@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Q
 
 # Create your views here.
 def home(request):
@@ -101,6 +102,7 @@ def welcome(request):
     }
     return render(request, 'welcome.html', data)
 
+
 @login_required(redirect_field_name=None)
 def publish(request):
     context = {"forms" : PublicacionForm()}
@@ -142,6 +144,26 @@ def ver_publicaciones(request):
         'item':mis_publicaciones
     }
     return render(request, 'ver_publicaciones.html', data)
+
+
+
+def buscar_productos(request):
+    q = request.GET.get('q', '')
+    tipo = request.GET.get('tipo', '')
+
+    resultados = Publicacion.objects.all()
+
+    if q:
+        resultados = resultados.filter(titulo__icontains=q)
+
+    if tipo:  # Si se ha seleccionado un tipo
+        if tipo != 'Todos': # Si se seleccionó un tipo específico distinto de 'todos'
+            resultados = resultados.filter(titulo__icontains=tipo)
+        # No aplicar filtro si se seleccionó 'todos'
+
+    return render(request, 'buscar_productos.html', {'resultados': resultados})
+
+
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):

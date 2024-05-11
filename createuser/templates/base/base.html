@@ -26,9 +26,26 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'publish' %}">Publicar producto</a>
           </li>
+
+
           <li class="nav-item">
             <a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a>
           </li>
+<<<<<<< Updated upstream
+=======
+
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'buscar_productos' %}">buscar producto</a>
+          </li>
+
+
+
+          <li class="nav-item">
+            <a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a>
+          </li>
+          
+>>>>>>> Stashed changes
           {% endif %}
           {% if request.user.is_superuser %}
           <li class="nav-item">

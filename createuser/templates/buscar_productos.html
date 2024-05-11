@@ -1,0 +1,59 @@
+<style>
+    /* Estilos para el contenedor del formulario */
+    .form-container {
+        display: inline-block; /* Hace que el contenedor sea en línea */
+    }
+
+    /* Estilos para el botón de búsqueda */
+    button {
+        display: inline-block; /* Hace que el botón sea en línea */
+        vertical-align: top; /* Alinea el botón con la parte superior del contenedor */
+    }
+
+    /* Estilos para el enlace de inicio */
+    .nav-link {
+        display: inline-block; /* Hace que el enlace sea en línea */
+        vertical-align: top; /* Alinea el enlace con la parte superior del contenedor */
+        margin-left: 10px; /* Ajusta el margen izquierdo para separarlo del botón de búsqueda */
+    }
+</style>
+
+<form method="GET" action="{% url 'buscar_productos' %}">
+    <!-- Contenedor del formulario -->
+    <div class="form-container">
+        <!-- Campo de búsqueda -->
+        <input type="text" name="q" placeholder="Buscar productos..." value="{{ request.GET.q }}"> 
+
+        <!-- Menú desplegable de filtro -->
+        <select name="tipo">
+            <option value="Todos">Todos</option>
+            <option value="comida">Comida</option>
+            <option value="ropa">Ropa</option>
+            <option value="electronica">Electrónica</option>
+            <option value="arroz">arroz</option>
+            <!-- Agrega más opciones según los tipos de publicaciones que tengas -->
+        </select>
+
+        <!-- Botón de búsqueda -->
+        <button type="submit">Buscar</button>  
+    </div>
+    <!-- Enlace de inicio -->
+    <a class="nav-link" href="{% url 'welcome' %}" style="padding: 5px 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px; text-decoration: none; color: #333;">Inicio</a> 
+</form>
+
+{% if request.GET.q or request.GET.tipo %}  <!-- Verifica si se ha enviado un término de búsqueda -->
+    {% if resultados %}
+        <!-- Lista de resultados de la búsqueda -->
+        <ul>
+        {% for producto in resultados %}
+            <li>{{ producto.titulo }}</li>
+            <li>{{ producto.descripcion }}</li>
+            <li>{{ producto.foto }}</li>
+            <br>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <!-- Mensaje si no se encontraron resultados -->
+        <p>sin publicaciones.</p>
+    {% endif %}
+{% endif %}
