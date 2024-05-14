@@ -1,10 +1,14 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
+{% load static %}
 {% block content %}
     {{item.titulo}} <br>
-    {{item.descripcion}}
-{% if item.id_usuario == request.user.id %}
-<a class="button" href="{% url 'borrar' item.id %}">
-        <span>borrar</span>
-</a>
-{% endif%}
+    <img src="{% static 'images/' %}{{item.foto}}"><br>
+    {{item.descripcion}}<br>
+    {{item.categoria}}<br>
+    {{item.fecha_publicacion}}<br>
+    {% if item.id_usuario == request.user.id %}
+        <a class="button" href="{% url 'borrar' item.id %}">
+        <span>Borrar</span>
+        </a>
+    {% endif%}
 {% endblock %}

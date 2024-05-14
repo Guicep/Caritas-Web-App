@@ -2,8 +2,22 @@
 {% block content %}
   <form action="" method="post">
     {% csrf_token %}
-    {{ forms.as_p}}
-    <input type="submit" value="Registrar"><br>
-    <b>{{ mensaje }}</b>
+    <div class="centered">
+      <p>
+        {% for field in forms %}
+          {% if not field.field.widget.attrs.name == 'special' %}
+            {{ field|linebreaks }}
+          {% endif %}
+        {% endfor %}
+        Fecha de nacimiento<br>
+        {% for field in forms %}
+          {% if field.field.widget.attrs.name == 'special' %}
+            {{ field }}
+          {% endif %}
+        {% endfor %}
+        <br><br><input type="submit" value="Registrar"><br>
+        <b>{{ mensaje }}</b>
+      </p>
+    </div>
   </form>
 {% endblock %}

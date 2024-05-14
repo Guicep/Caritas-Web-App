@@ -2,10 +2,14 @@
 {% block content %}
     <form method="POST">
         {% csrf_token %}
-        {{ forms.as_p }}
-        <input type="submit" value="Aceptar"><br><br>
-        <a href="{% url 'register' %}">Crear cuenta nueva</a><br>
-        <a href="{% url 'mylogin' %}">¿Has olvidado tu contraseña?</a><br>
-        {{ mensaje }}
+        <div class="centered"> 
+            <p>
+                {{ forms.as_p }}
+                <input type="submit" value="Aceptar"><br><br>
+                <a href="{% url 'register' %}">Crear cuenta nueva</a><br>
+                <a href="{% url 'mylogin' %}">¿Has olvidado tu contraseña?</a><br>
+                {{ mensaje }}
+            </p>
+        </div>
     </form>
 {% endblock %}

@@ -1,21 +1,24 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
+  <link rel="icon" href="{% static '/images/Logo.png' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
       {% block title %}
-        Django App
       {% endblock %}
     </title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"  rel="stylesheet" />
   </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand">HopeTrade</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
+  <body id="background-color">
+    <nav class="navbar navbar-expand-lg navbar-light bg-custom">
+      <img src="{% static 'images/Nombre.png' %}" alt="HopeTrade" id="titlelogo">
+      <div>
+        <ul class="navbar-nav">            
+          <li><a class="nav-link" href="{% url 'welcome' %}">Inicio</a></li>
+          <li><a class="nav-link" href="">Contacto</a></li>
           {% if request.user.is_authenticated and not request.user.is_superuser and not request.user.is_staff %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'welcome' %}">Inicio</a>
@@ -43,25 +46,19 @@
             <a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a>
           </li>
           
+            <li><a class="nav-link" href="{% url 'publish' %}">Publicar producto</a></li>
+            <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a></li>
           {% endif %}
           {% if request.user.is_superuser %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a>
-          </li>
-          <li class="=nav-item">
-            <a class="nav-link" href="{% url 'userlist' %}">Mostrar Usuarios</a>
-          </li>
+            <li><a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a></li>
+            <li><a class="nav-link" href="{% url 'userlist' %}">Mostrar Usuarios</a></li>
           {% endif %}
           {% if request.user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a>
-          </li>
+            <li><a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a></li>
           {% endif %}
         </ul>
       </div>
     </nav>
     <div class="container">{% block content %} {% endblock %}</div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" ></script>
   </body>
 </html>

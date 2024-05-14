@@ -56,6 +56,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 class Publicacion(models.Model):
     titulo = models.CharField(max_length=100)
+    categoria = models.CharField(max_length=100)
+    fecha_publicacion = models.DateField(auto_now=True)
     foto = models.ImageField()
     descripcion = models.CharField(max_length=200)
     id_usuario = models.IntegerField()
