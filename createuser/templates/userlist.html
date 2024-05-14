@@ -2,10 +2,14 @@
 {% block content %}
 <form action=""method="POST">
     {% csrf_token %}
-    {% for d in datos%}
-            Hacer ayudante <input name="usuario" type="submit" value={{d.correo}} onclick="return confirm('Esta seguro?')" href="">
-        </a>
-        <br>
-        {% endfor%}
-    </form>
+    {% if datos%}
+        {% for d in datos%}
+                Hacer ayudante <input name="usuario" type="submit" value={{d.correo}} onclick="return confirm('Esta seguro?')" href="">
+            </a>
+            <br>
+            {% endfor%}
+    {% else %}
+        No hay usuarios candidatos.
+    {% endif %}        
+        </form>
 {% endblock %}
