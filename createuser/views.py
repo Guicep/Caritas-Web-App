@@ -32,7 +32,7 @@ def register(request):
             extra_fields["dni"] = request.POST.get("dni")
             extra_fields["nacimiento"] = fecha_nacimiento
             Usuario.objects.create_user(request.POST.get("correo"),
-                                         request.POST.get("password"),
+                                        request.POST.get("password"),
                                          **extra_fields)
             context['mensaje'] = "El registro fue exitoso"
             return render(request, "registration/register.html", context)
@@ -55,7 +55,7 @@ def staffregister(request):
             extra_fields["apellido"] = request.POST.get("apellido")
             extra_fields["nacimiento"] = "1990-01-01"
             Usuario.objects.create_staff(request.POST.get("correo"),
-                                         request.POST.get("password"),
+                                        request.POST.get("password"),
                                         
                                          **extra_fields)
             context['mensaje'] = "El registro fue exitoso"
@@ -65,7 +65,14 @@ def staffregister(request):
 
 def userlist(request):
     datos=Usuario.objects.filter(is_staff = 0,is_superuser = 0)
-    return render(request, "userlist.html",{"datos":datos})
+    if(request.method == "POST"):
+        ayudante=Usuario.objects.filter(correo = request.POST.get("usuario"))
+        ayudante.update(is_staff=True)
+        return render(request, "userlist.html",{"datos":datos})
+    else:
+        return render(request, "userlist.html",{"datos":datos})
+
+
 
 def site_login(request):
     context = {"forms" : LoginForm(), "mensaje" : ""}
@@ -110,11 +117,11 @@ def publish(request):
             return render(request, "publish.html", context)
         else:
             publicacion = Publicacion(titulo = request.POST.get("titulo"),
-                              foto = request.POST.get("foto"),
-                              descripcion = request.POST.get("descripcion"),
-                              categoria = request.POST.get("categoria"),
-                              id_usuario = request.user.id
-                              )
+                            foto = request.POST.get("foto"),
+                            descripcion = request.POST.get("descripcion"),
+                            categoria = request.POST.get("categoria"),
+                            id_usuario = request.user.id
+                            )
             publicacion.save()
             return redirect("welcome")
     else:
