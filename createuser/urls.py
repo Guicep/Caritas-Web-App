@@ -13,5 +13,4 @@ urlpatterns = [
     path("borrar/<int:pk>", views.borrar, name = "borrar"),
     path("verpublicaciones/", views.ver_publicaciones, name = "ver_publicaciones"),
     path("userlist/",views.userlist, name= "userlist"),
-    path('buscar/', views.buscar_productos, name='buscar_productos'),
 ]
