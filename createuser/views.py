@@ -5,7 +5,6 @@ from dateutil.relativedelta import relativedelta
 from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from django.db.models import Q
 
 # Create your views here.
 def home(request):
@@ -17,14 +16,13 @@ def register(request):
         not_bad_fields = True
         fecha_nacimiento = transformar_fecha(request.POST)
         if (not_bad_fields and not password_with_six_or_more_char(request.POST.get('password'))):
-            not_bad_fields = set_context_error_mensaje(context, "La contraseña debe tener al menos 6 caracteres")
+            not_bad_fields = set_error_mensaje(context, "La contraseña debe tener al menos 6 caracteres")
         if (not_bad_fields and is_correo_registered(request.POST.get("correo"))):
-            not_bad_fields = set_context_error_mensaje(context, "El correo ya se encuentra registrado")
+            not_bad_fields = set_error_mensaje(context, "El correo ya se encuentra registrado")
         if (not_bad_fields and is_dni_registered(request.POST.get("dni"))):
-            not_bad_fields = set_context_error_mensaje(context, "El dni ya se encuentra registrado")
+            not_bad_fields = set_error_mensaje(context, "El dni ya se encuentra registrado")
         if (not_bad_fields and not is_adult(fecha_nacimiento)):
-            not_bad_fields = set_context_error_mensaje(context, "Se debe ser mayor de 18 años para registrarse")
-
+            not_bad_fields = set_error_mensaje(context, "Se debe ser mayor de 18 años para registrarse")
         if(not not_bad_fields):
             return render(request, "registration/register.html", context)
         else:
@@ -46,9 +44,9 @@ def staffregister(request):
     if request.method == "POST":
         not_bad_fields = True
         if (not_bad_fields and is_correo_registered(request.POST.get("correo"))):
-            not_bad_fields = set_context_error_mensaje(context, "El correo ya se encuentra registrado")
+            not_bad_fields = set_error_mensaje(context, "El correo ya se encuentra registrado")
         if (not_bad_fields and not password_with_six_or_more_char(request.POST.get('password'))):
-            not_bad_fields = set_context_error_mensaje(context, "La contraseña debe tener al menos 6 caracteres")
+            not_bad_fields = set_error_mensaje(context, "La contraseña debe tener al menos 6 caracteres")
         if(not not_bad_fields):
             return render(request, "registration/staffregister.html", context)
         else:
@@ -65,15 +63,9 @@ def staffregister(request):
     else:
         return render(request, "registration/staffregister.html", context)       
 
-
 def userlist(request):
     datos=Usuario.objects.filter(is_staff = 0,is_superuser = 0)
     return render(request, "userlist.html",{"datos":datos})
-
-
-
-#Usuario.objects.all()
-
 
 def site_login(request):
     context = {"forms" : LoginForm(), "mensaje" : ""}
@@ -96,12 +88,16 @@ def site_logout(request):
 
 @login_required(redirect_field_name=None)
 def welcome(request):
-    datos = Publicacion.objects.all()
-    data = {
-        'datos': datos
-    }
-    return render(request, 'welcome.html', data)
-
+    q = request.GET.get('q', '')
+    tipo = request.GET.get('tipo', '')
+    resultados = Publicacion.objects.all()
+    if q:
+        resultados = resultados.filter(titulo__icontains=q)
+    if tipo:  # Si se ha seleccionado un tipo
+        if tipo != 'Todos': # Si se seleccionó un tipo específico distinto de 'todos'
+            resultados = resultados.filter(categoria=tipo.capitalize())
+        # No aplicar filtro si se seleccionó 'todos'
+    return render(request, 'welcome.html', {'resultados': resultados})
 
 @login_required(redirect_field_name=None)
 def publish(request):
@@ -109,14 +105,14 @@ def publish(request):
     if (request.method == "POST"):
         not_bad_fields = True
         if (not_bad_fields and same_post_title(request.POST.get('titulo'), request.user.id)):
-            not_bad_fields = set_context_error_mensaje(context, "La publicacion tiene titulo repetido")
-
+            not_bad_fields = set_error_mensaje(context, "La publicacion tiene titulo repetido")
         if(not not_bad_fields):
             return render(request, "publish.html", context)
         else:
             publicacion = Publicacion(titulo = request.POST.get("titulo"),
                               foto = request.POST.get("foto"),
                               descripcion = request.POST.get("descripcion"),
+                              categoria = request.POST.get("categoria"),
                               id_usuario = request.user.id
                               )
             publicacion.save()
@@ -137,33 +133,12 @@ def borrar(request,pk):
     item.delete()
     return redirect('welcome')
 
-
 def ver_publicaciones(request):
     mis_publicaciones=Publicacion.objects.filter(id_usuario=request.user.id)
     data = {
         'item':mis_publicaciones
     }
     return render(request, 'ver_publicaciones.html', data)
-
-
-
-def buscar_productos(request):
-    q = request.GET.get('q', '')
-    tipo = request.GET.get('tipo', '')
-
-    resultados = Publicacion.objects.all()
-
-    if q:
-        resultados = resultados.filter(titulo__icontains=q)
-
-    if tipo:  # Si se ha seleccionado un tipo
-        if tipo != 'Todos': # Si se seleccionó un tipo específico distinto de 'todos'
-            resultados = resultados.filter(titulo__icontains=tipo)
-        # No aplicar filtro si se seleccionó 'todos'
-
-    return render(request, 'buscar_productos.html', {'resultados': resultados})
-
-
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
@@ -181,7 +156,7 @@ def is_adult(fecha):
 def transformar_fecha(pedido):
     return date(int(pedido.get("anio")), int(pedido.get("mes")), int(pedido.get("dia")))
 
-def set_context_error_mensaje(context, mensaje):
+def set_error_mensaje(context, mensaje):
     context['mensaje'] = mensaje
     return False
 

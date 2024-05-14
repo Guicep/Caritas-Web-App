@@ -4,7 +4,10 @@
     No tienes públicaciones
 {% else %}
     {% for p in item %}
-        {{p.titulo}}{{p.descripcion}} <br>
+    <ul>
+        <li>{{p.titulo}}</li>
+        <li>{{p.descripcion}}</li>
+    </ul>       
     {% endfor%}
 {% endif %}
 {% endblock %}

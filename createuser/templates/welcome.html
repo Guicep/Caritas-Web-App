@@ -1,9 +1,41 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
+{% load static %}
 {% block content %}
-    {% for d in datos%}
-        {{d.titulo}} <a class="button" href="{% url 'detalle_publicacion' d.id %}">
-        <span>Ver</span>
-    </a>
-    <br>
-    {% endfor%}
+<form method="GET" action="{% url 'welcome' %}">
+    {{ request.GET.get.tipo }}
+    <!-- Contenedor del formulario -->
+    <div class="form-container">
+        <!-- Campo de búsqueda -->
+        <input type="text" name="q" placeholder="Buscar productos..." value="{{ request.GET.q }}">
+        <!-- Menú desplegable de filtro -->
+        <select name="tipo">
+            <option value="Todos">Todos</option>
+            <option value="comida">Comida</option>
+            <option value="ropa">Ropa</option>
+            <option value="electronica">Electrónica</option>
+            <option value="arroz">arroz</option>
+            <!-- Agrega más opciones según los tipos de publicaciones que tengas -->
+        </select>
+
+        <!-- Botón de búsqueda -->
+        <button type="submit">Buscar</button>  
+    </div>
+    <!-- Enlace de inicio -->
+    <!--<a class="nav-link-custom" href="{% url 'welcome' %}" style="padding: 5px 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px; text-decoration: none; color: #333;">Inicio</a>--> 
+</form>
+
+{% if request.GET.q or request.GET.tipo %}  <!-- Verifica si se ha enviado un término de búsqueda -->
+    {% if resultados %}
+        <!-- Lista de resultados de la búsqueda -->
+        <ul>
+        {% for producto in resultados %}
+            {{producto.titulo}} <a class="button" href="{% url 'detalle_publicacion' producto.id %}">Ver</a>
+            <br>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <!-- Mensaje si no se encontraron resultados -->
+        <p>Sin publicaciones.</p>
+    {% endif %}
+{% endif %}
 {% endblock %}

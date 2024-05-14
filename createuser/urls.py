@@ -12,9 +12,5 @@ urlpatterns = [
     path("staffregister/",views.staffregister, name = "staffregister"),
     path("borrar/<int:pk>", views.borrar, name = "borrar"),
     path("verpublicaciones/", views.ver_publicaciones, name = "ver_publicaciones"),
-<<<<<<< Updated upstream
     path("userlist/",views.userlist, name= "userlist"),
-=======
-    path('buscar/', views.buscar_productos, name='buscar_productos'),
->>>>>>> Stashed changes
 ]
