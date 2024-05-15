@@ -58,6 +58,6 @@ class Publicacion(models.Model):
     titulo = models.CharField(max_length=100)
     categoria = models.CharField(max_length=100)
     fecha_publicacion = models.DateField(auto_now=True)
-    foto = models.ImageField()
+    foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
     descripcion = models.CharField(max_length=200)
     id_usuario = models.IntegerField()

@@ -117,7 +117,7 @@ def publish(request):
             return render(request, "publish.html", context)
         else:
             publicacion = Publicacion(titulo = request.POST.get("titulo"),
-                            foto = request.POST.get("foto"),
+                            foto = request.FILES.get("foto"),
                             descripcion = request.POST.get("descripcion"),
                             categoria = request.POST.get("categoria"),
                             id_usuario = request.user.id
@@ -137,7 +137,8 @@ def detalle_publicacion(request,pk):
 
 def borrar(request,pk):
     item = Publicacion.objects.get(id=pk)
-    item.delete()
+    if(item.id_usuario == request.user.id or request.user.is_staff):
+        item.delete()
     return redirect('welcome')
 
 def ver_publicaciones(request):

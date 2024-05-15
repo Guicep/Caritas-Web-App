@@ -1,12 +1,13 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% block content %}
 {% if not item   %}
-    No tienes públicaciones
+    <li class="list-group-item">No tienes públicaciones</li>
 {% else %}
     {% for p in item %}
-    <ul>
-        <li>{{p.titulo}}</li>
-        <li>{{p.descripcion}}</li>
+    <ul class="list-group">
+        <li class="list-group-item">{{p.titulo}}
+        <a class="btn btn-primary float-right" href="{% url 'detalle_publicacion' p.id %}">Ver</a>
+        </li>
     </ul>       
     {% endfor%}
 {% endif %}

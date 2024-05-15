@@ -1,14 +1,20 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% load static %}
 {% block content %}
-    {{item.titulo}} <br>
-    <img src="{% static 'images/' %}{{item.foto}}"><br>
-    {{item.descripcion}}<br>
-    {{item.categoria}}<br>
-    {{item.fecha_publicacion}}<br>
-    {% if item.id_usuario == request.user.id %}
-        <a class="button" href="{% url 'borrar' item.id %}">
+    <ul class="list-group">
+    <li class="list-group-item">{{item.titulo}}</li>
+    <li class="list-group-item"><img src="{% static 'images/' %}{{item.foto}}"></li>
+    <li class="list-group-item">{{item.descripcion}}</li>
+    <li class="list-group-item">{{item.categoria}}</li>
+    <li class="list-group-item">{{item.fecha_publicacion}}</li>
+    <li class="list-group-item">
+    {% if item.id_usuario == request.user.id or request.user.is_staff %}
+        <a class="btn btn-primary"
+           onclick="return confirm('Esta seguro de borrar la publicacion?')"
+           href="{% url 'borrar' item.id %}">
         <span>Borrar</span>
         </a>
     {% endif%}
+    </li>
+    </ul>
 {% endblock %}
