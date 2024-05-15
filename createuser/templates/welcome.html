@@ -26,10 +26,11 @@
 {% if request.GET.q or request.GET.tipo %}  <!-- Verifica si se ha enviado un término de búsqueda -->
     {% if resultados %}
         <!-- Lista de resultados de la búsqueda -->
-        <ul>
+        <ul class="list-group">
         {% for producto in resultados %}
-            {{producto.titulo}} <a class="button" href="{% url 'detalle_publicacion' producto.id %}">Ver</a>
-            <br>
+            <li class="list-group-item">
+            {{producto.titulo}} <a class="btn btn-primary float-right" href="{% url 'detalle_publicacion' producto.id %}">Ver</a>
+            <br></li>
         {% endfor %}
         </ul>
     {% else %}

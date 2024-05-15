@@ -5,7 +5,7 @@
         <div class="centered"> 
             <p>
                 {{ forms.as_p }}
-                <input type="submit" value="Aceptar"><br><br>
+                <input class="btn btn-primary float" type="submit" value="Aceptar"><br><br>
                 <a href="{% url 'register' %}">Crear cuenta nueva</a><br>
                 <a href="{% url 'mylogin' %}">¿Has olvidado tu contraseña?</a><br>
                 {{ mensaje }}

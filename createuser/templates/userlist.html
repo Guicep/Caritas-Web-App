@@ -3,11 +3,16 @@
 <form action=""method="POST">
     {% csrf_token %}
     {% if datos%}
+        <ul class="list-group">
+            <li class="list-group-item">Candidatos a ayudante:</li>
         {% for d in datos%}
-                Hacer ayudante <input name="usuario" type="submit" value={{d.correo}} onclick="return confirm('Esta seguro?')" href="">
-            </a>
+            <li class="list-group-item">
+                {{ d.apellido }}, {{ d.nombre }} 
+                <input class="btn btn-primary float-right" name="usuario" title="Dar alta" type="submit" value={{d.correo}} onclick="return confirm('Esta seguro?')" href="">
             <br>
+            </li>
             {% endfor%}
+        </ul>
     {% else %}
         No hay usuarios candidatos.
     {% endif %}        
