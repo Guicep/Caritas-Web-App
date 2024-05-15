@@ -1,6 +1,6 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% block content %}
-<form action=""method="POST">
+<form action="" method="POST">
     {% csrf_token %}
     {% if datos%}
         <ul class="list-group">
@@ -8,7 +8,7 @@
         {% for d in datos%}
             <li class="list-group-item">
                 {{ d.apellido }}, {{ d.nombre }} 
-                <input class="btn btn-primary float-right" name="usuario" title="Dar alta" type="submit" value={{d.correo}} onclick="return confirm('Esta seguro?')" href="">
+                <input class="btn btn-primary float-right" name="usuario" type="submit" value={{d.correo}} onclick="return confirm('Esta seguro?')" href="">
             <br>
             </li>
             {% endfor%}

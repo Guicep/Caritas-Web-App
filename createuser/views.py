@@ -117,7 +117,7 @@ def publish(request):
             return render(request, "publish.html", context)
         else:
             publicacion = Publicacion(titulo = request.POST.get("titulo"),
-                            foto = request.FILES.get("foto"),
+                            foto = request.POST.get("foto"),
                             descripcion = request.POST.get("descripcion"),
                             categoria = request.POST.get("categoria"),
                             id_usuario = request.user.id
