@@ -97,7 +97,7 @@ def site_logout(request):
 def welcome(request):
     q = request.GET.get('q', '')
     tipo = request.GET.get('tipo', '')
-    resultados = Publicacion.objects.all()
+    resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id)
     if q:
         resultados = resultados.filter(titulo__icontains=q)
     if tipo:  # Si se ha seleccionado un tipo
