@@ -4,9 +4,9 @@ from django.forms import TextInput
 
 class UsuarioForm(forms.ModelForm):
     # Configuracion de los inputs como en html
-    textInputDia = TextInput(attrs={"name" : "special", "placeholder": "Dia", "maxlength" : 2, "size" : 2})
-    textInputMes = TextInput(attrs={"name" : "special", "placeholder": "Mes", "maxlength" : 2, "size" : 2})
-    textInputAnio = TextInput(attrs={"name" : "special", "placeholder": "Año", "maxlength" : 4, "size" : 3})
+    textInputDia = forms.Select(attrs={"name" : "special"})
+    textInputMes = forms.Select(attrs={"name" : "special"})
+    textInputAnio = forms.Select(attrs={"name" : "special"})
     textInputNombre = TextInput(attrs={"placeholder": "Nombres", "maxlength" : 30})
     textInputApellido = TextInput(attrs={"placeholder": "Apellidos", "maxlength" : 20})
     textInputFecha = TextInput(attrs={"placeholder": "Fecha", "maxlength" : 20})
@@ -14,9 +14,10 @@ class UsuarioForm(forms.ModelForm):
     textInputCorreo = TextInput(attrs={"placeholder": "Correo", "maxlength" : 50})
     textInputPassword = TextInput(attrs={"type" : "password", "placeholder": "Contraseña", "maxlength" : 30})
     # Campos no relacionados al modelo
-    dia = forms.CharField(widget=textInputDia, label="")
-    mes = forms.CharField(widget=textInputMes, label="")
-    anio = forms.CharField(widget=textInputAnio, label="")
+    dia = forms.ChoiceField(widget=textInputDia, choices=[(x, x) for x in range(1, 32)])
+    # dia = forms.CharField(widget=textInputDia, label="")
+    mes = forms.ChoiceField(widget=textInputDia, choices=[(x, x) for x in range(1, 13)])
+    anio = forms.ChoiceField(widget=textInputDia, choices=[(x, x) for x in range(1950, 2024)])
     # Asignacion de la configuracion
     nombre = forms.CharField(widget=textInputNombre, label='')
     apellido = forms.CharField(widget=textInputApellido, label='')
