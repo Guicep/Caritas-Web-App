@@ -6,6 +6,10 @@ from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 # Create your views here.
 def home(request):
     return redirect('welcome')
@@ -147,6 +151,23 @@ def ver_publicaciones(request):
         'item':mis_publicaciones
     }
     return render(request, 'ver_publicaciones.html', data)
+
+
+def guardar_oferta(request):
+    if request.method == 'POST':
+        # Procesar la oferta recibida del formulario
+        monto_oferta = request.POST.get('monto')
+        # Lógica para guardar la oferta en la base de datos, por ejemplo:
+        # oferta = Oferta(monto=monto_oferta, usuario=request.user)
+        # oferta.save()
+        # Redirigir a una página de éxito o a la página de la publicación
+        return HttpResponseRedirect(reverse('detalle'))
+    else:
+        # Si se accede a la URL directamente, redirigir a alguna página
+        return HttpResponseRedirect(reverse('detalle'))
+    
+
+
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
