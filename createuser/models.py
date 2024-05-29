@@ -52,7 +52,13 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'correo'
     REQUIRED_FIELDS = ['nacimiento']
 
-
+class Intercambio(models.Model):
+    id_publicacion = models.IntegerField()
+    id_oferta = models.IntegerField()
+    fecha_acordada = models.DateField()
+    estado = models.CharField(max_length=100)
+    motivo_cancelacion = models.CharField(max_length=200, blank=True)
+    codigo_intercambio = models.UUIDField()
 
 class Publicacion(models.Model):
     titulo = models.CharField(max_length=100)
