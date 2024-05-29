@@ -15,13 +15,14 @@ def home(request):
     return redirect('welcome')
 
 def register(request):
-    context = {"forms" : UsuarioForm()}
     if (request.method == "POST"):
+        context = {"forms" : UsuarioForm(request.POST)}
+        correo_usuario = request.POST.get("correo").lower()
         not_bad_fields = True
         fecha_nacimiento = transformar_fecha(request.POST)
         if (not_bad_fields and not password_with_six_or_more_char(request.POST.get('password'))):
             not_bad_fields = set_error_mensaje(context, "La contraseña debe tener al menos 6 caracteres")
-        if (not_bad_fields and is_correo_registered(request.POST.get("correo"))):
+        if (not_bad_fields and is_correo_registered(correo_usuario)):
             not_bad_fields = set_error_mensaje(context, "El correo ya se encuentra registrado")
         if (not_bad_fields and is_dni_registered(request.POST.get("dni"))):
             not_bad_fields = set_error_mensaje(context, "El dni ya se encuentra registrado")
@@ -30,24 +31,27 @@ def register(request):
         if(not not_bad_fields):
             return render(request, "registration/register.html", context)
         else:
+            context = {"forms" : UsuarioForm()}
             extra_fields = {}
             extra_fields["nombre"] = request.POST.get("nombre")
             extra_fields["apellido"] = request.POST.get("apellido")
             extra_fields["dni"] = request.POST.get("dni")
             extra_fields["nacimiento"] = fecha_nacimiento
-            Usuario.objects.create_user(request.POST.get("correo"),
+            Usuario.objects.create_user(correo_usuario,
                                         request.POST.get("password"),
                                          **extra_fields)
             context['mensaje'] = "El registro fue exitoso"
             return render(request, "registration/register.html", context)
     else:
+        context = {"forms" : UsuarioForm()}
         return render(request, "registration/register.html", context)
 
 def staffregister(request):
     context = {"forms" : StaffForm()}
+    correo_ayudante = request.POST.get("correo").lower()
     if request.method == "POST":
         not_bad_fields = True
-        if (not_bad_fields and is_correo_registered(request.POST.get("correo"))):
+        if (not_bad_fields and is_correo_registered(correo_ayudante)):
             not_bad_fields = set_error_mensaje(context, "El correo ya se encuentra registrado")
         if (not_bad_fields and not password_with_six_or_more_char(request.POST.get('password'))):
             not_bad_fields = set_error_mensaje(context, "La contraseña debe tener al menos 6 caracteres")
@@ -58,7 +62,7 @@ def staffregister(request):
             extra_fields["nombre"] = request.POST.get("nombre")
             extra_fields["apellido"] = request.POST.get("apellido")
             extra_fields["nacimiento"] = "1990-01-01"
-            Usuario.objects.create_staff(request.POST.get("correo"),
+            Usuario.objects.create_staff(correo_ayudante,
                                         request.POST.get("password"),
                                         
                                          **extra_fields)
@@ -115,12 +119,13 @@ def publish(request):
     context = {"forms" : PublicacionForm()}
     if (request.method == "POST"):
         not_bad_fields = True
-        if (not_bad_fields and same_post_title(request.POST.get('titulo'), request.user.id)):
+        publicacion_titulo = request.POST.get('titulo').capitalize()
+        if (not_bad_fields and same_post_title(publicacion_titulo, request.user.id)):
             not_bad_fields = set_error_mensaje(context, "La publicacion tiene titulo repetido")
         if(not not_bad_fields):
             return render(request, "publish.html", context)
         else:
-            publicacion = Publicacion(titulo = request.POST.get("titulo"),
+            publicacion = Publicacion(titulo = publicacion_titulo,
                             foto = request.POST.get("foto"),
                             descripcion = request.POST.get("descripcion"),
                             categoria = request.POST.get("categoria"),
@@ -141,7 +146,7 @@ def detalle_publicacion(request,pk):
 
 def borrar(request,pk):
     item = Publicacion.objects.get(id=pk)
-    if(item.id_usuario == request.user.id or request.user.is_staff):
+    if(item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser):
         item.delete()
     return redirect('welcome')
 
@@ -152,8 +157,7 @@ def ver_publicaciones(request):
     }
     return render(request, 'ver_publicaciones.html', data)
 
-
-def guardar_oferta(request, id):
+def guardar_oferta(request):
     if request.method == 'POST':
         # Procesar la oferta recibida del formulario
         tit = request.POST.get('titulo')
