@@ -61,3 +61,10 @@ class Publicacion(models.Model):
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
     descripcion = models.CharField(max_length=200)
     id_usuario = models.IntegerField()
+
+
+class Oferta(models.Model):
+    id_publicacion = models.IntegerField()
+    titulo = models.CharField(max_length=100)
+    cantidad = models.IntegerField(default=0)
+    descripcion = models.CharField(max_length=200)

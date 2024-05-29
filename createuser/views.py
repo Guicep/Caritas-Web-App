@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Usuario, Publicacion
+from .models import Usuario, Publicacion, Oferta
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm
@@ -153,18 +153,21 @@ def ver_publicaciones(request):
     return render(request, 'ver_publicaciones.html', data)
 
 
-def guardar_oferta(request):
+def guardar_oferta(request, id):
     if request.method == 'POST':
         # Procesar la oferta recibida del formulario
-        monto_oferta = request.POST.get('monto')
+        tit = request.POST.get('titulo')
+        cant = request.POST.get('cantidad')
+        desc = request.POST.get('descripcion')
+        Oferta.objects.create(id_publicacion = id, titulo = tit, cantidad = cant, descripcion = desc)
         # Lógica para guardar la oferta en la base de datos, por ejemplo:
         # oferta = Oferta(monto=monto_oferta, usuario=request.user)
         # oferta.save()
         # Redirigir a una página de éxito o a la página de la publicación
-        return HttpResponseRedirect(reverse('detalle'))
+        return redirect("welcome")
     else:
         # Si se accede a la URL directamente, redirigir a alguna página
-        return HttpResponseRedirect(reverse('detalle'))
+        return redirect("welcome")
     
 
 

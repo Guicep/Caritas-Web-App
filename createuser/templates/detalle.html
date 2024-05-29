@@ -18,7 +18,7 @@
     
     {% else %}
         <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button>
-        {% include 'ofertar.html' %}
+        {% include 'ofertar.html' with id=item.id %}
     {% endif %}
     </li>
     </ul>
