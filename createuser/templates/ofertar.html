@@ -1,8 +1,10 @@
 <!-- Cuadro de diálogo para la oferta -->
 <div id="cuadro-oferta" style="display: none;">
    <h2>Ofertar</h2>
-   <form method="post" action="{% url 'guardar_oferta' item.id %}">
+   <form method="post" action="{% url 'guardar_oferta' %}">
        {% csrf_token %}
+       <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{item.id}}">
+       <input type="hidden" id="id_ofertante" name="id_ofertante" value="{{request.user.id}}">
        <label for="titulo">Título:</label>
        <input type="text" id="titulo" name="titulo">
        <br>

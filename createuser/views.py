@@ -172,11 +172,25 @@ def detalle_publicacion(request, pk):
     }
     return render(request, 'detalle.html', data)
 
+def detalle_oferta(request,pk):
+    oferta = get_object_or_404(Oferta, id=pk)
+    data = {
+        'item': oferta
+    }
+    return render(request, 'detalle_oferta.html', data)
+
+
 def borrar(request,pk):
     item = Publicacion.objects.get(id=pk)
+    user = Usuario.objects.get(id=item.id_usuario)
     if(item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser):
+        send_mail(
+            "Publicacion Eliminada",
+            "Tu Publicacion: "+item.titulo+" a sido eliminada",
+            "settings.EMAIL_HOST_USER",
+            [user.correo])
         item.delete()
-    return redirect('welcome')
+    return redirect('ver_publicaciones')
 
 def ver_publicaciones(request):
     mis_publicaciones=Publicacion.objects.filter(id_usuario=request.user.id)
@@ -184,6 +198,13 @@ def ver_publicaciones(request):
         'item':mis_publicaciones
     }
     return render(request, 'ver_publicaciones.html', data)
+
+def ofertas(request,pk):
+    mis_ofertas = Oferta.objects.filter(id_publicacion=pk)
+    data = {
+        'item': mis_ofertas
+    }
+    return render(request, 'ver_ofertas.html', data)
 
 def cancelar_intercambio(request, context):
     intercambio = Intercambio.objects.filter(codigo_intercambio=context["codigo"])
@@ -199,10 +220,12 @@ def cancelar_intercambio(request, context):
 def guardar_oferta(request):
     if request.method == 'POST':
         # Procesar la oferta recibida del formulario
+        id_pu = request.POST.get('id_publicacion')
+        id_of = request.POST.get('id_ofertante')
         tit = request.POST.get('titulo')
         cant = request.POST.get('cantidad')
         desc = request.POST.get('descripcion')
-        Oferta.objects.create(id_publicacion = id, titulo = tit, cantidad = cant, descripcion = desc)
+        Oferta.objects.create(id_publicacion = id_pu, id_ofertante = id_of, titulo = tit, cantidad = cant, descripcion = desc)
         # Lógica para guardar la oferta en la base de datos, por ejemplo:
         # oferta = Oferta(monto=monto_oferta, usuario=request.user)
         # oferta.save()
@@ -211,7 +234,6 @@ def guardar_oferta(request):
     else:
         # Si se accede a la URL directamente, redirigir a alguna página
         return redirect("welcome")
-    
 
 
 

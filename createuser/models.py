@@ -78,6 +78,7 @@ class Comentario(models.Model):
 
 class Oferta(models.Model):
     id_publicacion = models.IntegerField()
+    id_ofertante = models.IntegerField()
     titulo = models.CharField(max_length=100)
     cantidad = models.IntegerField(default=0)
     descripcion = models.CharField(max_length=200)

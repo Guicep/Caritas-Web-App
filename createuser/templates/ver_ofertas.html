@@ -1,0 +1,14 @@
+{% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
+{% block content %}
+{% if not item   %}
+    <li class="list-group-item">No tienes ofertas</li>
+{% else %}
+    {% for p in item %}
+    <ul class="list-group">
+        <li class="list-group-item">{{p.titulo}}
+        <a class="btn btn-primary float-right" href="{% url 'detalle_oferta' p.id %}">Ver</a>
+        </li>
+    </ul>
+    {% endfor%}
+{% endif %}
+{% endblock %}
