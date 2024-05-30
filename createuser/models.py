@@ -61,3 +61,11 @@ class Publicacion(models.Model):
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
     descripcion = models.CharField(max_length=200)
     id_usuario = models.IntegerField()
+
+class Comentario(models.Model):
+    publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name='comentarios')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    contenido = models.TextField(max_length=200)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    respuesta = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='respuestas')
+    respondido = models.BooleanField(default=False)

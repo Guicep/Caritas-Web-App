@@ -1,25 +1,66 @@
-{% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
+{% extends "base/base.html" %}
+{% block title %} Detalle de la Publicación {% endblock %}
 {% load static %}
+
 {% block content %}
     <ul class="list-group">
-    <li class="list-group-item">{{item.titulo}}</li>
-    <li class="list-group-item"><img src="{% static 'images/' %}{{ item.foto }}"></li>
-    <li class="list-group-item">{{item.descripcion}}</li>
-    <li class="list-group-item">{{item.categoria}}</li>
-    <li class="list-group-item">{{item.fecha_publicacion}}</li>
-    <li class="list-group-item">
-    
-    {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
-        <a class="btn btn-primary"
-           onclick="return confirm('Esta seguro de borrar la publicacion?')"
-           href="{% url 'borrar' item.id %}">
-        <span>Borrar</span>
-        </a>
-    
-    {% else %}
-        <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button>
-        {% include 'ofertar.html' %}
-    {% endif %}
-    </li>
+        <li class="list-group-item">{{ item.titulo }}</li>
+        <li class="list-group-item"><img src="{{ item.foto.url }}"></li>
+        <li class="list-group-item">{{ item.descripcion }}</li>
+        <li class="list-group-item">{{ item.categoria }}</li>
+        <li class="list-group-item">{{ item.fecha_publicacion }}</li>
+        <li class="list-group-item">
+            {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
+                <a class="btn btn-primary" onclick="return confirm('¿Está seguro de borrar la publicación?')" href="{% url 'borrar' item.id %}">
+                    <span>Borrar</span>
+                </a>
+            {% else %}
+                <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button>
+                {% include 'ofertar.html' %}
+            {% endif %}
+        </li>
     </ul>
+
+    <!-- Sección de Comentarios -->
+    <div id="comentarios" class="mt-4">
+        <h3>Comentarios</h3>
+        {% for comentario in comentarios %}
+            <div class="comment">
+                <p><strong>{{ comentario.usuario.nombre}}</strong> <strong>{{ comentario.usuario.apellido}}</strong> ({{ comentario.fecha_creacion|date:"d M Y H:i" }}):</p>
+                <p>{{ comentario.contenido }}</p>
+                <!-- Respuestas a comentarios -->
+                {% for respuesta in comentario.respuestas.all %}
+                    <div class="response" style="margin-left: 20px;">
+                        <p><strong>{{ respuesta.usuario.nombre }}</strong> <strong>{{ respuesta.usuario.apellido}}</strong> ({{ respuesta.fecha_creacion|date:"d M Y H:i" }}):</p>
+                        <p>{{ respuesta.contenido }}</p>
+                    </div>
+                {% endfor %}
+                <!-- Formulario de respuesta solo para el dueño de la publicación y si no ha sido respondido -->
+                {% if not comentario.respondido and item.id_usuario == request.user.id %}
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ respuesta_form.as_p }}
+                        <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
+                        <button type="submit" name="respuesta" class="btn btn-primary">Responder</button>
+                        <button type="reset" class="btn btn-primary">Cancelar</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+        {% endfor %}
+    </div>
+
+    <!-- Formulario para agregar un nuevo comentario -->
+{% if not item.id_usuario == request.user.id%}
+    <div class="comment-form mt-4">
+        <h4>Agregar un comentario</h4>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Publicar comentario</button>
+            <button type="reset" class="btn btn-primary">Cancelar</button>
+        </form>
+    </div>
+{% endif %}    
 {% endblock %}

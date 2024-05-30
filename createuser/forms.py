@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Publicacion
+from .models import Usuario, Publicacion, Comentario
 from django.forms import TextInput
 
 class UsuarioForm(forms.ModelForm):
@@ -69,3 +69,24 @@ class StaffForm(forms.ModelForm):
     class Meta:
         model = Usuario
         fields = ['nombre', 'apellido', 'correo', 'password']
+
+#class ComentarioForm(forms.ModelForm):
+#   class Meta:
+#        model = Comentario
+#        fields = ['id_publicacion', 'id_usuario', 'id_respuesta', 'contenido']
+#        widgets = {
+#            'id_publicacion': forms.HiddenInput(),
+#            'id_usuario': forms.HiddenInput(),
+#            'id_respuesta': forms.HiddenInput(),
+#        }
+
+class ComentarioForm(forms.ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ['contenido']
+        widgets = {
+            'contenido': forms.Textarea(attrs={'rows': 3, 'cols': 40, 'placeholder': 'Escribe tu comentario aquí...'})
+        }
+        labels = {
+            'contenido': ''  # Esto elimina la etiqueta del campo
+        }

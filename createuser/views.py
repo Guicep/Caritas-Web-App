@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import Usuario, Publicacion
+from .models import Usuario, Publicacion, Comentario
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -136,13 +136,37 @@ def publish(request):
     else:
         return render(request, "publish.html", context)
 
-def detalle_publicacion(request,pk):
-    item = Publicacion.objects.filter(id=pk)  # , id_usuario=request.user.id
-    # print(request.user.id)
+def detalle_publicacion(request, pk):
+    publicacion = get_object_or_404(Publicacion, id=pk)
+    comentarios = Comentario.objects.filter(publicacion=publicacion, respuesta__isnull=True)
+    
+    if request.method == 'POST':
+        form = ComentarioForm(request.POST)
+        if form.is_valid():
+            comentario = form.save(commit=False)
+            comentario.publicacion = publicacion
+            comentario.usuario = request.user
+            if 'respuesta' in request.POST:
+                comentario.respuesta_id = request.POST.get('comentario_id')
+                comentario.save()
+                comentario_respondido = Comentario.objects.get(id=comentario.respuesta_id)
+                comentario_respondido.respondido = True
+                comentario_respondido.save()
+            else:
+                comentario.save()
+            return redirect('detalle_publicacion', pk=pk)
+    else:
+        form = ComentarioForm()
+
+    respuesta_form = ComentarioForm()
+
     data = {
-        'item':item[0]
+        'item': publicacion,
+        'comentarios': comentarios,
+        'form': form,
+        'respuesta_form': respuesta_form,
     }
-    return render(request, 'detalle.html',data)
+    return render(request, 'detalle.html', data)
 
 def borrar(request,pk):
     item = Publicacion.objects.get(id=pk)
@@ -192,3 +216,23 @@ def set_error_mensaje(context, mensaje):
 
 def same_post_title(pedido, id_usuario_actual):
     return Publicacion.objects.filter(titulo=pedido, id_usuario=id_usuario_actual).exists()
+
+def comentarios(request, pk):
+    publicacion = get_object_or_404(Publicacion, pk=pk)
+    comentarios = Comentario.objects.filter(id_publicacion=pk, id_respuesta__isnull=True)
+    if request.method == 'POST':
+        form = ComentarioForm(request.POST)
+        if form.is_valid():
+            comentario = form.save(commit=False)
+            comentario.id_usuario = request.user
+            comentario.id_publicacion = pk
+            comentario.save()
+            return redirect('comentarios', pk=pk)
+    else:
+        form = ComentarioForm()
+
+    return render(request, 'comentarios.html', {
+        'publicacion': publicacion,
+        'comentarios': comentarios,
+        'form': form
+    })
