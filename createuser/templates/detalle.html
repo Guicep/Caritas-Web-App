@@ -4,21 +4,25 @@
 
 {% block content %}
     <ul class="list-group">
-        <li class="list-group-item">{{ item.titulo }}</li>
-        <li class="list-group-item"><img src="{{ item.foto.url }}"></li>
-        <li class="list-group-item">{{ item.descripcion }}</li>
-        <li class="list-group-item">{{ item.categoria }}</li>
-        <li class="list-group-item">{{ item.fecha_publicacion }}</li>
-        <li class="list-group-item">
-            {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
-                <a class="btn btn-primary" onclick="return confirm('¿Está seguro de borrar la publicación?')" href="{% url 'borrar' item.id %}">
-                    <span>Borrar</span>
-                </a>
-            {% else %}
-                <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button>
-                {% include 'ofertar.html' %}
-            {% endif %}
-        </li>
+    <li class="list-group-item">{{item.titulo}}</li>
+    <li class="list-group-item"><img src="{% static 'images/' %}{{ item.foto }}"></li>
+    <li class="list-group-item">{{item.descripcion}}</li>
+    <li class="list-group-item">{{item.categoria}}</li>
+    <li class="list-group-item">{{item.fecha_publicacion}}</li>
+    <li class="list-group-item">
+    
+    {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
+        <a class="btn btn-primary"
+           onclick="return confirm('Esta seguro de borrar la publicacion?')"
+           href="{% url 'borrar' item.id %}">
+        <span>Borrar</span>
+        </a>
+    
+    {% else %}
+        <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button>
+        {% include 'ofertar.html' with id=item.id %}
+    {% endif %}
+    </li>
     </ul>
 
     <!-- Sección de Comentarios -->

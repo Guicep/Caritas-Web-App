@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import Usuario, Publicacion, Comentario
+from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
+from django.conf import settings
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
@@ -44,12 +46,13 @@ def register(request):
             return render(request, "registration/register.html", context)
     else:
         context = {"forms" : UsuarioForm()}
+        # send_mail("Hola", "Buenas :)", "settings.EMAIL_HOST_USER", ["mateoalmaraz2000@gmail.com"])
         return render(request, "registration/register.html", context)
 
 def staffregister(request):
-    context = {"forms" : StaffForm()}
-    correo_ayudante = request.POST.get("correo").lower()
     if request.method == "POST":
+        context = {"forms" : StaffForm(request.POST)}
+        correo_ayudante = request.POST.get("correo").lower()
         not_bad_fields = True
         if (not_bad_fields and is_correo_registered(correo_ayudante)):
             not_bad_fields = set_error_mensaje(context, "El correo ya se encuentra registrado")
@@ -58,17 +61,18 @@ def staffregister(request):
         if(not not_bad_fields):
             return render(request, "registration/staffregister.html", context)
         else:
+            context = {"forms" : StaffForm()}
             extra_fields = {}
             extra_fields["nombre"] = request.POST.get("nombre")
             extra_fields["apellido"] = request.POST.get("apellido")
             extra_fields["nacimiento"] = "1990-01-01"
             Usuario.objects.create_staff(correo_ayudante,
                                         request.POST.get("password"),
-                                        
                                          **extra_fields)
             context['mensaje'] = "El registro fue exitoso"
             return render(request, "registration/staffregister.html", context)
     else:
+        context = {"forms" : StaffForm()}
         return render(request, "registration/staffregister.html", context)       
 
 def userlist(request):
@@ -181,18 +185,35 @@ def ver_publicaciones(request):
     }
     return render(request, 'ver_publicaciones.html', data)
 
+def cancelar_intercambio(request, context):
+    intercambio = Intercambio.objects.filter(codigo_intercambio=context["codigo"])
+    intercambio.update(estado=context["estado"])
+    intercambio.update(motivo_cancelacion=context["motivo_cancelacion"]) 
+    send_mail(
+        context["codigo"] + "Intercambio cancelado",
+        "El intercambio con codigo: " + context["codigo"] + "a sido cancelado por: " + context["motivo_cancelacion"], 
+        "settings.EMAIL_HOST_USER", 
+        context["emails"])
+    return redirect('welcome')
+
 def guardar_oferta(request):
     if request.method == 'POST':
         # Procesar la oferta recibida del formulario
-        monto_oferta = request.POST.get('monto')
+        tit = request.POST.get('titulo')
+        cant = request.POST.get('cantidad')
+        desc = request.POST.get('descripcion')
+        Oferta.objects.create(id_publicacion = id, titulo = tit, cantidad = cant, descripcion = desc)
         # Lógica para guardar la oferta en la base de datos, por ejemplo:
         # oferta = Oferta(monto=monto_oferta, usuario=request.user)
         # oferta.save()
         # Redirigir a una página de éxito o a la página de la publicación
-        return HttpResponseRedirect(reverse('detalle'))
+        return redirect("welcome")
     else:
         # Si se accede a la URL directamente, redirigir a alguna página
-        return HttpResponseRedirect(reverse('detalle'))
+        return redirect("welcome")
+    
+
+
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):

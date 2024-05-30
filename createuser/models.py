@@ -52,7 +52,13 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'correo'
     REQUIRED_FIELDS = ['nacimiento']
 
-
+class Intercambio(models.Model):
+    id_publicacion = models.IntegerField()
+    id_oferta = models.IntegerField()
+    fecha_acordada = models.DateField()
+    estado = models.CharField(max_length=100)
+    motivo_cancelacion = models.CharField(max_length=200, blank=True)
+    codigo_intercambio = models.UUIDField()
 
 class Publicacion(models.Model):
     titulo = models.CharField(max_length=100)
@@ -69,3 +75,23 @@ class Comentario(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     respuesta = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='respuestas')
     respondido = models.BooleanField(default=False)
+
+class Oferta(models.Model):
+    id_publicacion = models.IntegerField()
+    titulo = models.CharField(max_length=100)
+    cantidad = models.IntegerField(default=0)
+    descripcion = models.CharField(max_length=200)
+
+class Comentario(models.Model):
+    publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name='comentarios')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    contenido = models.TextField(max_length=200)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    respuesta = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='respuestas')
+    respondido = models.BooleanField(default=False)
+
+class Oferta(models.Model):
+    id_publicacion = models.IntegerField()
+    titulo = models.CharField(max_length=100)
+    cantidad = models.IntegerField(default=0)
+    descripcion = models.CharField(max_length=200)

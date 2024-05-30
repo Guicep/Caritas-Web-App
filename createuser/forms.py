@@ -54,7 +54,7 @@ class LoginForm(forms.Form):
     correo = forms.CharField(widget=textInputCorreo, label='')
     password = forms.CharField(widget=textInputPassword, label='')
 
-class StaffForm(forms.ModelForm):
+class StaffForm(forms.Form):
     # Configuracion de los inputs como en html
     textInputNombre = TextInput(attrs={"placeholder": "Nombres", "maxlength" : 30})
     textInputApellido = TextInput(attrs={"placeholder": "Apellidos", "maxlength" : 20})
