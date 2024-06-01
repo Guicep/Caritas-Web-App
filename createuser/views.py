@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect
 from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.conf import settings
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
+
 from django.urls import reverse
 
 # Create your views here.
@@ -234,6 +234,19 @@ def guardar_oferta(request):
     else:
         # Si se accede a la URL directamente, redirigir a alguna página
         return redirect("welcome")
+    
+
+def oferta_aceptada(request):
+    if request.method == 'POST':
+        form = IntercambioForm(request.POST)
+        if form.is_valid():
+           # Procesar el formulario si es válido
+           form.save()
+    else:
+        form = IntercambioForm()
+
+    return render(request, 'welcome.html')
+
 
 
 

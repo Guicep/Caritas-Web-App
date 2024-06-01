@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Publicacion, Comentario
+from .models import Usuario, Publicacion, Comentario, Intercambio
 from django.forms import TextInput
 
 class UsuarioForm(forms.ModelForm):
@@ -90,3 +90,10 @@ class ComentarioForm(forms.ModelForm):
         labels = {
             'contenido': ''  # Esto elimina la etiqueta del campo
         }
+
+class IntercambioForm(forms.ModelForm):
+    class Meta:
+        model = Intercambio
+        fields = ['id_publicacion', 'id_ofertante', 'fecha_acordada', 'estado', 'motivo_cancelacion']
+
+        

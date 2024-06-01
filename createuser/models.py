@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, UserManager, PermissionsMixin
 from django.db import models
+import uuid
+from datetime import datetime, timedelta
 
 # Create your models here.
 
@@ -52,13 +54,17 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'correo'
     REQUIRED_FIELDS = ['nacimiento']
 
+
+def get_default_fecha_acordada():
+    return datetime.now().date() + timedelta(days=2)
+
 class Intercambio(models.Model):
     id_publicacion = models.IntegerField()
-    id_oferta = models.IntegerField()
-    fecha_acordada = models.DateField()
+    id_ofertante = models.IntegerField()
+    fecha_acordada = models.DateField(default=get_default_fecha_acordada)
     estado = models.CharField(max_length=100)
     motivo_cancelacion = models.CharField(max_length=200, blank=True)
-    codigo_intercambio = models.UUIDField()
+    codigo_intercambio = models.CharField(max_length=6, unique=True, editable=False, default=uuid.uuid4)
 
 class Publicacion(models.Model):
     titulo = models.CharField(max_length=100)
@@ -82,3 +88,4 @@ class Oferta(models.Model):
     titulo = models.CharField(max_length=100)
     cantidad = models.IntegerField(default=0)
     descripcion = models.CharField(max_length=200)
+

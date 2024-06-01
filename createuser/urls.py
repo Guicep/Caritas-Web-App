@@ -16,4 +16,5 @@ urlpatterns = [
     path("guardar-oferta/", views.guardar_oferta, name="guardar_oferta"),
     path("ofertas/<int:pk>", views.ofertas, name="ofertas"),
     path("detalle_oferta/<int:pk>", views.detalle_oferta, name="detalle_oferta"),
+    path('oferta_aceptada/', views.oferta_aceptada, name='oferta_aceptada'),
 ]

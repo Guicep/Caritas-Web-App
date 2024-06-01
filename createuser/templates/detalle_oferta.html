@@ -8,4 +8,9 @@
     <li class="list-group-item">{{item.cantidad}}</li>
     <li class="list-group-item">{{item.descripcion}}</li>
     </ul>
+    <form method = "POST" action="{% url 'oferta_aceptada' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary" href="{% url 'oferta_aceptada' %}">Aceptar </button>
+    </form>
+
 {% endblock %}
