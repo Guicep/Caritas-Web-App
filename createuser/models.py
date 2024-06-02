@@ -3,6 +3,8 @@ from django.db import models
 import uuid
 from datetime import datetime, timedelta
 
+CONST_CODIGO_BASE = 1000
+
 # Create your models here.
 
 class CustomUserManager(UserManager):
@@ -61,10 +63,10 @@ def get_default_fecha_acordada():
 class Intercambio(models.Model):
     id_publicacion = models.IntegerField()
     id_ofertante = models.IntegerField()
-    fecha_acordada = models.DateField(default=get_default_fecha_acordada)
+    fecha_acordada = models.DateField(default=get_default_fecha_acordada())
     estado = models.CharField(max_length=100)
     motivo_cancelacion = models.CharField(max_length=200, blank=True)
-    codigo_intercambio = models.CharField(max_length=6, unique=True, editable=False, default=uuid.uuid4)
+    codigo_intercambio = models.CharField(max_length=6)
 
 class Publicacion(models.Model):
     titulo = models.CharField(max_length=100)

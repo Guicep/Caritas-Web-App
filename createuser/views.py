@@ -238,17 +238,17 @@ def guardar_oferta(request):
 
 def oferta_aceptada(request):
     if request.method == 'POST':
-        form = IntercambioForm(request.POST)
-        if form.is_valid():
-           # Procesar el formulario si es válido
-           form.save()
-    else:
-        form = IntercambioForm()
-
-    return render(request, 'welcome.html')
-
-
-
+        oferta = Oferta.objects.filter(id=request.POST.get('oferta_id'))
+        publicacion = Publicacion.objects.filter(id=oferta.get().id_publicacion)
+        intercambio = Intercambio.objects.create(
+            id_publicacion=publicacion.get().pk,
+            id_ofertante=oferta.get().pk,
+            estado="Pendiente",
+            motivo_cancelacion="",
+            )
+        Intercambio.objects.filter(pk=intercambio.pk).update(codigo_intercambio=1000+intercambio.pk)
+        request.session["mensaje"] = "En breve le llegara el mail con los datos para el intercambio"
+    return redirect("welcome")
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):

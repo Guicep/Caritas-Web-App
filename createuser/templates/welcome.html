@@ -1,6 +1,7 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% load static %}
 {% block content %}
+{{ request.session.mensaje }}
 <form method="GET" action="{% url 'welcome' %}">
     {{ request.GET.get.tipo }}
     <!-- Contenedor del formulario -->

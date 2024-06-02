@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block content %}
+
     <ul class="list-group">
     <li class="list-group-item">{{item.titulo}}</li>
     <li class="list-group-item">{{item.cantidad}}</li>
@@ -10,7 +11,7 @@
     </ul>
     <form method = "POST" action="{% url 'oferta_aceptada' %}">
     {% csrf_token %}
-    <button type="submit" class="btn btn-primary" href="{% url 'oferta_aceptada' %}">Aceptar </button>
+    <button type="submit" name="oferta_id" class="btn btn-primary" value={{item.id}}>Aceptar</button>
     </form>
-
+    
 {% endblock %}
