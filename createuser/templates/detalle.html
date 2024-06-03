@@ -23,8 +23,9 @@
            href="{% url 'borrar' item.id %}">
         <span>Borrar</span>
         </a>
-    
-    {% else %}
+    {%endif%}
+
+    {% if item.id_usuario != request.user.id and not request.user.is_superuser %}
         <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button>
         {% include 'ofertar.html' with id=item.id %}
     {% endif %}
