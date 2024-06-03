@@ -32,46 +32,56 @@
     </li>
     </ul>
 
-    <!-- Sección de Comentarios -->
-    <div id="comentarios" class="mt-4">
-        <h3>Comentarios</h3>
-        {% for comentario in comentarios %}
-            <div class="comment">
-                <p><strong>{{ comentario.usuario.nombre}}</strong> <strong>{{ comentario.usuario.apellido}}</strong> ({{ comentario.fecha_creacion|date:"d M Y H:i" }}):</p>
-                <p>{{ comentario.contenido }}</p>
-                <!-- Respuestas a comentarios -->
-                {% for respuesta in comentario.respuestas.all %}
-                    <div class="response" style="margin-left: 20px;">
-                        <p><strong>{{ respuesta.usuario.nombre }}</strong> <strong>{{ respuesta.usuario.apellido}}</strong> ({{ respuesta.fecha_creacion|date:"d M Y H:i" }}):</p>
-                        <p>{{ respuesta.contenido }}</p>
-                    </div>
-                {% endfor %}
-                <!-- Formulario de respuesta solo para el dueño de la publicación y si no ha sido respondido -->
-                {% if not comentario.respondido and item.id_usuario == request.user.id and request.user.nombre == zidane %}
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ respuesta_form.as_p }}
-                        <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
-                        <button type="submit" name="respuesta" class="btn btn-primary">Responder</button>
-                        <button type="reset" class="btn btn-primary">Cancelar</button>
-                    </form>
-                {% endif %}
+<!-- Sección de Comentarios -->
+<div id="comentarios" class="mt-4">
+    <h3>Comentarios</h3>
+    {% for comentario in comentarios %}
+    <div class="comment" style="margin-bottom: 20px; padding: 15px; border: 1px solid #c4d4ca; border-radius: 8px; background-color: #eaf7f4;">
+        <div class="comment-header" style="margin-bottom: 5px;">
+            <strong>{{ comentario.usuario.nombre}} {{ comentario.usuario.apellido}}</strong>
+            <span class="comment-date" style="color: #666; font-size: 12px;">{{ comentario.fecha_creacion|date:"d M Y H:i" }}</span>
+        </div>
+        <div class="comment-content" style="margin-bottom: 10px;">
+            <p>{{ comentario.contenido }}</p>
+        </div>
+        <!-- Respuestas a comentarios -->
+        {% for respuesta in comentario.respuestas.all %}
+        <div class="response" style="margin-left: 20px;">
+            <div class="response-header" style="margin-bottom: 5px;">
+                <strong>{{ respuesta.usuario.nombre }} {{ respuesta.usuario.apellido}}</strong>
+                <span class="response-date" style="color: #666; font-size: 12px;">{{ respuesta.fecha_creacion|date:"d M Y H:i" }}</span>
             </div>
-        {% empty %}
-            <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+            <div class="response-content" style="margin-bottom: 10px;">
+                <p>{{ respuesta.contenido }}</p>
+            </div>
+        </div>
         {% endfor %}
-    </div>
-
-    <!-- Formulario para agregar un nuevo comentario -->
-{% if not item.id_usuario == request.user.id%}
-    <div class="comment-form mt-4">
-        <h4>Agregar un comentario</h4>
-        <form method="post">
+        <!-- Formulario de respuesta -->
+        {% if not comentario.respondido and item.id_usuario == request.user.id and request.user.nombre == zidane %}
+        <form method="post" class="response-form" style="margin-top: 10px;">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Publicar comentario</button>
-            <button type="reset" class="btn btn-primary">Cancelar</button>
+            {{ respuesta_form.as_p }}
+            <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
+            <button type="submit" name="respuesta" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Responder</button>
+            <button type="reset" class="btn btn-secondary" style="background-color: #6c757d; color: #fff;">Cancelar</button>
         </form>
+        {% endif %}
     </div>
-{% endif %}    
+    {% empty %}
+    <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+    {% endfor %}
+</div>
+
+<!-- Formulario para agregar un nuevo comentario -->
+{% if not item.id_usuario == request.user.id %}
+<div class="comment-form mt-4">
+    <h4>Agregar un comentario</h4>
+    <form method="post" class="new-comment-form" style="margin-top: 20px;">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Publicar comentario</button>
+        <button type="reset" class="btn btn-secondary" style="background-color: #6c757d; color: #fff;">Cancelar</button>
+    </form>
+</div>
+{% endif %}
 {% endblock %}
