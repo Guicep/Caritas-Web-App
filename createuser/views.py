@@ -143,7 +143,7 @@ def publish(request):
 def detalle_publicacion(request, pk):
     publicacion = get_object_or_404(Publicacion, id=pk)
     comentarios = Comentario.objects.filter(publicacion=publicacion, respuesta__isnull=True)
-    
+   #hola 
     if request.method == 'POST':
         form = ComentarioForm(request.POST)
         if form.is_valid():
