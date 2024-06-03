@@ -1,39 +1,48 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-  <link rel="icon" href="{% static '/images/Logo.png' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-      {% block title %}
-      {% endblock %}
+        {% block title %}
+        {% endblock %}
     </title>
-  </head>
-  <body id="background-color">
-    <nav class="navbar navbar-expand-lg navbar-light bg-custom">
-      <img src="{% static 'images/Nombre.png' %}" alt="HopeTrade" id="titlelogo">
-      <div>
+    <!-- Cargar Bootstrap CSS desde un CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- Cargar jQuery desde un CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Tu estilo personalizado -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
+    <link rel="icon" href="{% static '/images/Logo.png' %}">
+</head>
+<body id="background-color">
+<nav class="navbar navbar-expand-lg navbar-light bg-custom">
+    <img src="{% static 'images/Nombre.png' %}" alt="HopeTrade" id="titlelogo">
+    <div>
         <ul class="navbar-nav">            
-          <li><a class="nav-link" href="{% url 'welcome' %}">Inicio</a></li>
-          <li><a class="nav-link" href="">Contacto</a></li>
-          {% if request.user.is_authenticated and not request.user.is_superuser%}
-          
-            <li><a class="nav-link" href="{% url 'publish' %}">Publicar producto</a></li>
-            <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a></li>
-          {% endif %}
-          {% if request.user.is_superuser %}
-            <li><a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a></li>
-            <li><a class="nav-link" href="{% url 'userlist' %}">Mostrar Usuarios</a></li>
-          {% endif %}
-          {% if request.user.is_authenticated %}
-            <li><a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a></li>
-          {% endif %}
+            <li><a class="nav-link" href="{% url 'welcome' %}">Inicio</a></li>
+            <li><a class="nav-link" href="">Contacto</a></li>
+            {% if request.user.is_authenticated and not request.user.is_superuser%}
+            
+                <li><a class="nav-link" href="{% url 'publish' %}">Publicar producto</a></li>
+                <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a></li>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <li><a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a></li>
+                <li><a class="nav-link" href="{% url 'userlist' %}">Mostrar Usuarios</a></li>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+                <li><a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a></li>
+            {% endif %}
         </ul>
-      </div>
-    </nav>
-    <div class="container">{% block content %} {% endblock %}</div>
-  </body>
+    </div>
+</nav>
+<div class="container">{% block content %} {% endblock %}</div>
+
+<!-- Cargar Bootstrap JS desde un CDN (al final del body) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
 </html>

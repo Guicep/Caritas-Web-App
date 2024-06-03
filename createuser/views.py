@@ -272,22 +272,3 @@ def set_error_mensaje(context, mensaje):
 def same_post_title(pedido, id_usuario_actual):
     return Publicacion.objects.filter(titulo=pedido, id_usuario=id_usuario_actual).exists()
 
-def comentarios(request, pk):
-    publicacion = get_object_or_404(Publicacion, pk=pk)
-    comentarios = Comentario.objects.filter(id_publicacion=pk, id_respuesta__isnull=True)
-    if request.method == 'POST':
-        form = ComentarioForm(request.POST)
-        if form.is_valid():
-            comentario = form.save(commit=False)
-            comentario.id_usuario = request.user
-            comentario.id_publicacion = pk
-            comentario.save()
-            return redirect('comentarios', pk=pk)
-    else:
-        form = ComentarioForm()
-
-    return render(request, 'comentarios.html', {
-        'publicacion': publicacion,
-        'comentarios': comentarios,
-        'form': form
-    })
