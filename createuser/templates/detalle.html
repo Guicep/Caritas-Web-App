@@ -71,7 +71,7 @@
         </div>
         {% endfor %}
         <!-- Formulario de respuesta -->
-        {% if not comentario.respondido and item.id_usuario == request.user.id and request.user.nombre == zidane %}
+        {% if not comentario.respondido and item.id_usuario == request.user.id %}
         <form method="post" class="response-form" style="margin-top: 10px;">
             {% csrf_token %}
             {{ respuesta_form.as_p }}

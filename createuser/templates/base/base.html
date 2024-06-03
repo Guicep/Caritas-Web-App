@@ -23,6 +23,8 @@
           
             <li><a class="nav-link" href="{% url 'publish' %}">Publicar producto</a></li>
             <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a></li>
+            <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Historial de intercambio</a></li>
+
           {% endif %}
           {% if request.user.is_superuser %}
             <li><a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a></li>
