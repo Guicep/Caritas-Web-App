@@ -1,7 +1,11 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% load static %}
 {% block content %}
-{{ request.session.mensaje }}
+<ul class="list-group">
+    <li class="list-group-item">
+        {{ request.session.mensaje }}
+    </li>
+</ul>
 <form method="GET" action="{% url 'welcome' %}">
     {{ request.GET.get.tipo }}
     <!-- Contenedor del formulario -->

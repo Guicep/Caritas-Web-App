@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.conf import settings
+import os
 
 from django.shortcuts import render, get_object_or_404
 
@@ -205,17 +206,6 @@ def ofertas(request,pk):
     }
     return render(request, 'ver_ofertas.html', data)
 
-def cancelar_intercambio(request, context):
-    intercambio = Intercambio.objects.filter(codigo_intercambio=context["codigo"])
-    intercambio.update(estado=context["estado"])
-    intercambio.update(motivo_cancelacion=context["motivo_cancelacion"]) 
-    send_mail(
-        context["codigo"] + "Intercambio cancelado",
-        "El intercambio con codigo: " + context["codigo"] + "a sido cancelado por: " + context["motivo_cancelacion"], 
-        "settings.EMAIL_HOST_USER", 
-        context["emails"])
-    return redirect('welcome')
-
 def guardar_oferta(request):
     if request.method == 'POST':
         # Procesar la oferta recibida del formulario
@@ -239,15 +229,52 @@ def oferta_aceptada(request):
     if request.method == 'POST':
         oferta = Oferta.objects.filter(id=request.POST.get('oferta_id'))
         publicacion = Publicacion.objects.filter(id=oferta.get().id_publicacion)
+        publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
+        ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
         intercambio = Intercambio.objects.create(
             id_publicacion=publicacion.get().pk,
             id_ofertante=oferta.get().pk,
             estado="Pendiente",
             motivo_cancelacion="",
             )
-        Intercambio.objects.filter(pk=intercambio.pk).update(codigo_intercambio=1000+intercambio.pk)
-        request.session["mensaje"] = "En breve le llegara el mail con los datos para el intercambio"
+        resultado = Intercambio.objects.filter(pk=intercambio.pk)
+        resultado.update(codigo_intercambio=1000+intercambio.pk)
+        send_mail(
+            "Aviso de oferta aceptada!",
+            "La oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
+            " de "+publicante.get().apellido+" "+publicante.get().nombre +" a sido aceptada!\n\n"+
+            "Su intercambio se realizara el dia "+resultado.get().fecha_acordada.strftime('%d/%m/%Y')+" con el codigo: "+
+            resultado.get().codigo_intercambio+" en la filial de La Plata",
+            "settings.EMAIL_HOST_USER",
+            [publicante.get().correo, ofertante.get().correo],
+        )
+        #request.session["mensaje"] = "En breve le llegara el mail con los datos para el intercambio"
     return redirect("welcome")
+
+def oferta_rechazada(request):
+    oferta = Oferta.objects.filter(pk=request.POST.get("oferta_id"))
+    publicacion = Publicacion.objects.filter(pk=oferta.get().id_publicacion)
+    publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
+    ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
+    send_mail(
+        "Aviso de oferta cancelada",
+        "Su oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
+        " de "+publicante.get().apellido+" "+publicante.get().nombre +" fue rechazada",
+        "settings.EMAIL_HOST_USER",
+        [ofertante.get().correo],
+    )
+    oferta.delete()
+    return redirect('ver_publicaciones')
+
+def cancelar_intercambio(request):
+    #intercambio.update(estado=context["estado"])
+    #intercambio.update(motivo_cancelacion=context["motivo_cancelacion"]) 
+    #send_mail(
+    #    context["codigo"] + "Intercambio cancelado",
+    #    "El intercambio con codigo: " + context["codigo"] + "a sido cancelado por: " + context["motivo_cancelacion"], 
+    #    "settings.EMAIL_HOST_USER", 
+    #    context["emails"])
+    pass
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):

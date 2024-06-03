@@ -9,9 +9,25 @@
     <li class="list-group-item">{{item.cantidad}}</li>
     <li class="list-group-item">{{item.descripcion}}</li>
     </ul>
-    <form method = "POST" action="{% url 'oferta_aceptada' %}">
+    <form id="aceptar" method = "POST" action="{% url 'oferta_aceptada' %}">
     {% csrf_token %}
-    <button type="submit" name="oferta_id" class="btn btn-primary" value={{item.id}}>Aceptar</button>
+    <input name="oferta_id" type="hidden" value={{item.id}}>
     </form>
+
+    
+    <form id="rechazar" method = "POST" action="{% url 'oferta_rechazada' %}">
+    {% csrf_token %}
+    <input name="oferta_id" type="hidden" value={{item.id}}>
+    </form>
+
+    <button type="submit" name="oferta_id" id="ace" class="btn btn-primary" value={{item.id}}>Aceptar</button>
+    <button type="submit" name="oferta_id" id="rec" class="btn btn-primary" value={{item.id}}>Rechazar</button>
+    
+    <script>
+        document.getElementById('ace').addEventListener('click', () => document.getElementById('aceptar').submit());
+        document.getElementById('rec').addEventListener('click', () => document.getElementById('rechazar').submit());
+    </script>
     
 {% endblock %}
+
+
