@@ -35,6 +35,20 @@
 <!-- Sección de Comentarios -->
 <div id="comentarios" class="mt-4">
     <h3>Comentarios</h3>
+    <!-- Formulario para agregar un nuevo comentario -->
+    {% if not item.id_usuario == request.user.id %}
+<div class="comment-form mt-4">
+    <h4>Agregar un comentario</h4>
+    <form method="post" class="new-comment-form" style="margin-top: 20px;">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Publicar comentario</button>
+        <button type="reset" class="btn btn-secondary" style="background-color: #6c757d; color: #fff;">Cancelar</button>
+        <br><br>
+    </form>
+</div>
+
+{% endif %}
     {% for comentario in comentarios %}
     <div class="comment" style="margin-bottom: 20px; padding: 15px; border: 1px solid #c4d4ca; border-radius: 8px; background-color: #eaf7f4;">
         <div class="comment-header" style="margin-bottom: 5px;">
@@ -72,16 +86,5 @@
     {% endfor %}
 </div>
 
-<!-- Formulario para agregar un nuevo comentario -->
-{% if not item.id_usuario == request.user.id %}
-<div class="comment-form mt-4">
-    <h4>Agregar un comentario</h4>
-    <form method="post" class="new-comment-form" style="margin-top: 20px;">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Publicar comentario</button>
-        <button type="reset" class="btn btn-secondary" style="background-color: #6c757d; color: #fff;">Cancelar</button>
-    </form>
-</div>
-{% endif %}
+
 {% endblock %}
