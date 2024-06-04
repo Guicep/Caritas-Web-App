@@ -29,7 +29,7 @@
           
             <li><a class="nav-link" href="{% url 'publish' %}">Publicar producto</a></li>
             <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a></li>
-            <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Historial de intercambio</a></li>
+            <li><a class="nav-link" href="{% url 'historial' %}">Historial de intercambio</a></li>
 
           {% endif %}
           {% if request.user.is_superuser %}
@@ -46,5 +46,8 @@
 
 <!-- Cargar Bootstrap JS desde un CDN (al final del body) -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+{% block script %}{% endblock %}
 </body>
 </html>
+

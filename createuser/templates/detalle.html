@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% block title %} Detalle de la Publicación {% endblock %}
+{% block title %}Detalle de la Publicación{% endblock %}
 {% load static %}
 
 {% block content %}
@@ -12,7 +12,7 @@
         <li class="list-group-item">
             {% if item.id_usuario == request.user.id %}
                 <a class="btn btn-primary" href="{% url 'ofertas' item.id %}">
-                    <span>ofertas</span>
+                    <span>Ofertas</span>
                 </a>
             {% endif %}
             {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
@@ -27,22 +27,12 @@
         </li>
     </ul>
 
+    <!-- Botón para mostrar comentarios -->
+    <button id="toggleComentarios" class="btn btn-info mt-4">Mostrar Comentarios</button>
+
     <!-- Sección de Comentarios -->
-    <div id="comentarios" class="mt-4">
+    <div id="comentarios" class="mt-4" style="display: none;">
         <h3>Comentarios</h3>
-        <!-- Formulario para agregar un nuevo comentario -->
-        {% if not item.id_usuario == request.user.id %}
-            <div class="comment-form mt-4" style="display: none;">
-                <h4>Agregar un comentario</h4>
-                <form method="post" class="new-comment-form" style="margin-top: 20px;">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Publicar comentario</button>
-                    <button type="reset" class="btn btn-secondary" style="background-color: #6c757d; color: #fff;">Cancelar</button>
-                    <br><br>
-                </form>
-            </div>
-        {% endif %}
         {% for comentario in comentarios %}
             <div class="comment" style="margin-bottom: 20px; padding: 15px; border: 1px solid #c4d4ca; border-radius: 8px; background-color: #eaf7f4;">
                 <div class="comment-header" style="margin-bottom: 5px;">
@@ -55,51 +45,45 @@
                 <!-- Respuestas a comentarios -->
                 {% for respuesta in comentario.respuestas.all %}
                     <div class="response" style="margin-left: 20px;">
-                       <div class="response-header" style="margin-bottom: 5px;">
+                        <div class="response-header" style="margin-bottom: 5px;">
                             <strong>{{ respuesta.usuario.nombre }} {{ respuesta.usuario.apellido }}</strong>
                             <span class="response-date" style="color: #666; font-size: 12px;">{{ respuesta.fecha_creacion|date:"d M Y H:i" }}</span>
                         </div>
-                    <div class="response-content" style="margin-bottom: 10px;">
-                        <p>{{ respuesta.contenido }}</p>
-                    </div>
+                        <div class="response-content" style="margin-bottom: 10px;">
+                            <p>{{ respuesta.contenido }}</p>
+                        </div>
                     </div>
                 {% endfor %}
 
-<!-- Botón para abrir la ventana modal -->
-{% if not comentario.respondido and item.id_usuario == request.user.id %}
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalResponder{{ comentario.id }}">
-    Responder
-</button>
+                <!-- Botón para abrir la ventana modal -->
+                {% if not comentario.respondido and item.id_usuario == request.user.id and request.user.nombre == zidane %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalResponder{{ comentario.id }}">
+                        Responder
+                    </button>
 
-<!-- Ventana modal -->
-<div class="modal fade" id="modalResponder{{ comentario.id }}" tabindex="-1" role="dialog" aria-labelledby="modalResponderLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalResponderLabel">Responder a {{ comentario.usuario.nombre }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" class="response-form">
-                    {% csrf_token %}
-                    {{ respuesta_form.as_p }}
-                    <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
-                    <button type="submit" name="respuesta" class="btn btn-primary">Comentar</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
+                    <!-- Ventana modal -->
+                    <div class="modal fade" id="modalResponder{{ comentario.id }}" tabindex="-1" role="dialog" aria-labelledby="modalResponderLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalResponderLabel">Responder a {{ comentario.usuario.nombre }}</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" class="response-form">
+                                        {% csrf_token %}
+                                        {{ respuesta_form.as_p }}
+                                        <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
+                                        <button type="submit" name="respuesta" class="btn btn-primary">Comentar</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         {% empty %}
-        {% if not item.id_usuario == request.user.id %}
-            <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
-        {% endif %}
+            <p>No hay comentarios para mostrar.</p>
         {% endfor %}
     </div>
 
@@ -109,19 +93,44 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Agregar un comentario</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <form method="post" class="new-comment-form">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <button type="submit" class="btn btn-primary">Publicar comentario</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="reset" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 {% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleComentariosBtn = document.getElementById('toggleComentarios');
+        var comentariosDiv = document.getElementById('comentarios');
+
+        toggleComentariosBtn.addEventListener('click', function() {
+            if (comentariosDiv.style.display === 'none') {
+                comentariosDiv.style.display = 'block';
+                toggleComentariosBtn.textContent = 'Ocultar Comentarios';
+            } else {
+                comentariosDiv.style.display = 'none';
+                toggleComentariosBtn.textContent = 'Mostrar Comentarios';
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

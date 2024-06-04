@@ -299,3 +299,7 @@ def set_error_mensaje(context, mensaje):
 def same_post_title(pedido, id_usuario_actual):
     return Publicacion.objects.filter(titulo=pedido, id_usuario=id_usuario_actual).exists()
 
+def ver_historial(request):
+    historial =Oferta.objects.filter(id_ofertante=request.user.id)
+    print(historial.get().titulo)
+    return redirect("welcome")
