@@ -111,7 +111,12 @@ def site_logout(request):
 def welcome(request):
     q = request.GET.get('q', '')
     tipo = request.GET.get('tipo', '')
-    resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id)
+    ofertas_usuario = Oferta.objects.filter(id_ofertante=request.user.id).values_list("pk", flat=True)
+    resultados_ocultos_ofertante = Intercambio.objects.filter(id_ofertante__in=ofertas_usuario).values_list("id_publicacion", flat=True)
+    resultados_publicacion_ocultas = Publicacion.objects.filter(pk__in=resultados_ocultos_ofertante)
+    resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id).exclude(oculto=True) | resultados_publicacion_ocultas
+    print(resultados)
+
     if q:
         resultados = resultados.filter(titulo__icontains=q)
     if tipo:  # Si se ha seleccionado un tipo
@@ -135,7 +140,8 @@ def publish(request):
                             foto = request.POST.get("foto"),
                             descripcion = request.POST.get("descripcion"),
                             categoria = request.POST.get("categoria"),
-                            id_usuario = request.user.id
+                            id_usuario = request.user.id,
+                            oculto = False,
                             )
             publicacion.save()
             return redirect("welcome")
@@ -145,6 +151,7 @@ def publish(request):
 def detalle_publicacion(request, pk):
     publicacion = get_object_or_404(Publicacion, id=pk)
     comentarios = Comentario.objects.filter(publicacion=publicacion, respuesta__isnull=True)
+    usuarios_ofertantes = Oferta.objects.filter(id_publicacion=pk).values_list('id_ofertante', flat=True)
     if request.method == 'POST':
         form = ComentarioForm(request.POST)
         if form.is_valid():
@@ -170,6 +177,7 @@ def detalle_publicacion(request, pk):
         'comentarios': comentarios,
         'form': form,
         'respuesta_form': respuesta_form,
+        'tiene_oferta' : request.user.id in usuarios_ofertantes,
     }
     return render(request, 'detalle.html', data)
 
@@ -215,12 +223,12 @@ def guardar_oferta(request):
         tit = request.POST.get('titulo')
         cant = request.POST.get('cantidad')
         desc = request.POST.get('descripcion')
-        Oferta.objects.create(id_publicacion = id_pu, id_ofertante = id_of, titulo = tit, cantidad = cant, descripcion = desc)
+        Oferta.objects.create(id_publicacion = id_pu, id_ofertante = id_of, titulo = tit, cantidad = cant, descripcion = desc, aceptada = False)
         # Lógica para guardar la oferta en la base de datos, por ejemplo:
         # oferta = Oferta(monto=monto_oferta, usuario=request.user)
         # oferta.save()
         # Redirigir a una página de éxito o a la página de la publicación
-        return redirect("welcome")
+        return redirect("detalle_publicacion", pk=id_pu)
     else:
         # Si se accede a la URL directamente, redirigir a alguna página
         return redirect("welcome")
@@ -238,6 +246,8 @@ def oferta_aceptada(request):
             estado="Pendiente",
             motivo_cancelacion="",
             )
+        publicacion.update(oculto=True)
+        oferta.update(aceptada=True)
         resultado = Intercambio.objects.filter(pk=intercambio.pk)
         resultado.update(codigo_intercambio=1000+intercambio.pk)
         #send_mail(
@@ -247,10 +257,9 @@ def oferta_aceptada(request):
         #    "Su intercambio se realizara el dia "+resultado.get().fecha_acordada.strftime('%d/%m/%Y')+" con el codigo: "+
         #    resultado.get().codigo_intercambio+" en la filial de La Plata",
         #    "settings.EMAIL_HOST_USER",
-        #    [publicante.get().correo, ofertante.get().correo],
+        #    [ofertante.get().correo],
         #)
-        #request.session["mensaje"] = "En breve le llegara el mail con los datos para el intercambio"
-    return redirect("welcome")
+    return redirect("detalle_publicacion", pk=publicacion.get().pk)
 
 def oferta_rechazada(request):
     oferta = Oferta.objects.filter(pk=request.POST.get("oferta_id"))
@@ -267,15 +276,21 @@ def oferta_rechazada(request):
     oferta.delete()
     return redirect('ver_publicaciones')
 
-def cancelar_intercambio(request):
-    #intercambio.update(estado=context["estado"])
-    #intercambio.update(motivo_cancelacion=context["motivo_cancelacion"]) 
+def cancelar_intercambio(request, id):
+    intercambio = Intercambio.objects.filter(id_publicacion=id)
+    intercambio.update(estado="Cancelado")
+    intercambio.update(motivo_cancelacion=request.POST.get('motivo'))
+    publicacion = Publicacion.objects.filter(pk=id)
+    publicacion.update(oculto=False)
+    oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
+    oferta.delete()
+    intercambio.update(id_ofertante=-1)
     #send_mail(
     #    context["codigo"] + "Intercambio cancelado",
     #    "El intercambio con codigo: " + context["codigo"] + "a sido cancelado por: " + context["motivo_cancelacion"], 
     #    "settings.EMAIL_HOST_USER", 
     #    context["emails"])
-    pass
+    return redirect('welcome')
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):

@@ -75,6 +75,7 @@ class Publicacion(models.Model):
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
     descripcion = models.CharField(max_length=200)
     id_usuario = models.IntegerField()
+    oculto = models.BooleanField()
 
 class Comentario(models.Model):
     publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name='comentarios')
@@ -90,4 +91,5 @@ class Oferta(models.Model):
     titulo = models.CharField(max_length=100)
     cantidad = models.IntegerField(default=0)
     descripcion = models.CharField(max_length=200)
+    aceptada = models.BooleanField()
 

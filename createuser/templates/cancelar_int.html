@@ -1,0 +1,91 @@
+<div id="cuadro-oferta" style="display: none;">
+    <h2>Ofertar</h2>
+    <form method="post" action="{% url 'cancelar_intercambio' item.id %}">
+        {% csrf_token %}
+        <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{item.id}}">
+        <label for="motivo">Movivo de cancelacion:</label>
+        <input type="text" id="motivo" name="motivo" required="True">
+        <!-- Otros campos para la oferta -->
+        <button type="submit" class="btn btn-primary">Aceptar</button>
+        <a href="" class="btn btn-secondary" onclick="ocultarCancelar()">Cancelar</a>
+    </form>
+ </div>
+ 
+ 
+ <style>
+    #cuadro-oferta {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f0f8ff; /* Verde agua */
+        padding: 20px;
+        border: 2px solid #90ee90; /* Verde lima */
+        border-radius: 10px;
+        z-index: 1000;
+    }
+ 
+    #cuadro-oferta h2 {
+        color: #000; /* Negro */
+        margin-bottom: 10px;
+    }
+ 
+    #cuadro-oferta label {
+        color: #000; /* Negro */
+        margin-bottom: 10px;
+    }
+ 
+    #cuadro-oferta input[type="text"],
+    #cuadro-oferta input[type="number"],
+    #cuadro-oferta textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+ 
+    #cuadro-oferta button,
+    #cuadro-oferta a {
+        padding: 10px 20px;
+        margin-top: 10px;
+        border-radius: 5px;
+        color: #fff; /* Blanco */
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block; /* Hacer que los botones se alineen horizontalmente */
+        vertical-align: middle; /* Alinear verticalmente respecto al contenedor */
+    }
+ 
+    #cuadro-oferta button {
+        background-color: #90ee90; /* Verde lima */
+        border: none;
+        margin-right: 10px; /* Espacio entre los botones */
+    }
+ 
+    #cuadro-oferta button:hover {
+        background-color: #7cfc00; /* Verde lima más oscuro al pasar el cursor */
+    }
+ 
+    #cuadro-oferta a {
+        background-color: #ff6347; /* Rojo coral */
+    }
+ 
+    #cuadro-oferta a:hover {
+        background-color: #ff4500; /* Rojo naranja al pasar el cursor */
+    }
+ </style>
+ 
+ 
+ 
+ <script>
+    function mostrarCancelar() {
+        document.getElementById('cuadro-oferta').style.display = 'block';
+    }
+ 
+    function ocultarCancelar() {
+        document.getElementById('cuadro-oferta').style.display = 'none';
+    }
+ </script>

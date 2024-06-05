@@ -1,11 +1,6 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% load static %}
 {% block content %}
-<ul class="list-group">
-    <li class="list-group-item">
-        {{ request.session.mensaje }}
-    </li>
-</ul>
 <form method="GET" action="{% url 'welcome' %}">
     {{ request.GET.get.tipo }}
     <!-- Contenedor del formulario -->
@@ -34,8 +29,12 @@
         <ul class="list-group">
         {% for producto in resultados %}
             <li class="list-group-item">
-            {{producto.titulo}} <a class="btn btn-primary float-right" href="{% url 'detalle_publicacion' producto.id %}">Ver</a>
-        </li>
+            {% if producto.oculto %}
+            <b>{{producto.titulo}}</b> <a class="btn btn-primary float-right" href="{% url 'detalle_publicacion' producto.id %}">Ver</a>
+            {% else %}
+            {{producto.titulo}}</b> <a class="btn btn-primary float-right" href="{% url 'detalle_publicacion' producto.id %}">Ver</a>
+            {% endif %}
+            </li>
             <br></li>
         {% endfor %}
         </ul>

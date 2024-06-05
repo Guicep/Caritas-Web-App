@@ -19,5 +19,5 @@ urlpatterns = [
     path('oferta_aceptada/', views.oferta_aceptada, name='oferta_aceptada'),
     path('oferta_rechazada/', views.oferta_rechazada, name='oferta_rechazada'),
     path('historial/', views.ver_historial, name='historial'),
-
+    path('cancelar_intercambio/<int:id>', views.cancelar_intercambio, name='cancelar_intercambio'),
 ]

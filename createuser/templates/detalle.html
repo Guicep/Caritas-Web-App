@@ -9,20 +9,33 @@
         <li class="list-group-item">{{ item.descripcion }}</li>
         <li class="list-group-item">{{ item.categoria }}</li>
         <li class="list-group-item">{{ item.fecha_publicacion }}</li>
+        {% if tiene_oferta and not item.oculto %}
+            <li class="list-group-item"><b>Su oferta esta pendiente a ser aceptada</b></li>
+        {% endif %}
         <li class="list-group-item">
-            {% if item.id_usuario == request.user.id %}
+            {% if item.id_usuario == request.user.id and not item.oculto %}
                 <a class="btn btn-primary" href="{% url 'ofertas' item.id %}">
                     <span>Ofertas</span>
                 </a>
             {% endif %}
+            {% if item.oculto %}
+                <button class="btn btn-danger" onclick="mostrarCancelar()">
+                    Cancelar intercambio
+                </button> 
+                {% include 'cancelar_int.html' with id=item.id %}
+            {% endif %}
             {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
+                {% if not item.oculto %}
                 <a class="btn btn-danger" onclick="return confirm('¿Está seguro de borrar la publicación?')" href="{% url 'borrar' item.id %}">
                     <span>Borrar</span>
                 </a>
+                {% endif %}
+            {% endif %}
+            {% if item.id_usuario != request.user.id and not request.user.is_superuser and not tiene_oferta %}
+                <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button> {% include 'ofertar.html' with id=item.id %}
             {% endif %}
             {% if item.id_usuario != request.user.id and not request.user.is_superuser %}
                 <button class="btn btn-primary" data-toggle="modal" data-target="#ventanaEmergente">Escribir comentario</button>
-                <button class="btn btn-success" onclick="mostrarOferta()">Ofertar</button> {% include 'ofertar.html' with id=item.id %}
             {% endif %}
         </li>
     </ul>
