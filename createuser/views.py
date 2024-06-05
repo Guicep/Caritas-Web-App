@@ -142,7 +142,7 @@ def publish(request):
                             categoria = request.POST.get("categoria"),
                             id_usuario = request.user.id,
                             oculto = False,
-                            )
+                            finalizada = False)
             publicacion.save()
             return redirect("welcome")
     else:
@@ -151,7 +151,7 @@ def publish(request):
 def detalle_publicacion(request, pk):
     publicacion = get_object_or_404(Publicacion, id=pk)
     comentarios = Comentario.objects.filter(publicacion=publicacion, respuesta__isnull=True)
-    usuarios_ofertantes = Oferta.objects.filter(id_publicacion=pk).values_list('id_ofertante', flat=True)
+    usuarios_ofertantes = Oferta.objects.filter(id_publicacion=pk).exclude(finalizada=True).values_list('id_ofertante', flat=True)
     if request.method == 'POST':
         form = ComentarioForm(request.POST)
         if form.is_valid():
@@ -209,7 +209,7 @@ def ver_publicaciones(request):
     return render(request, 'ver_publicaciones.html', data)
 
 def ofertas(request,pk):
-    mis_ofertas = Oferta.objects.filter(id_publicacion=pk)
+    mis_ofertas = Oferta.objects.filter(id_publicacion=pk).exclude(finalizada=True)
     data = {
         'item': mis_ofertas
     }
@@ -223,7 +223,14 @@ def guardar_oferta(request):
         tit = request.POST.get('titulo')
         cant = request.POST.get('cantidad')
         desc = request.POST.get('descripcion')
-        Oferta.objects.create(id_publicacion = id_pu, id_ofertante = id_of, titulo = tit, cantidad = cant, descripcion = desc, aceptada = False)
+        Oferta.objects.create(
+            id_publicacion = id_pu, 
+            id_ofertante = id_of, 
+            titulo = tit, 
+            cantidad = cant, 
+            descripcion = desc, 
+            aceptada = False,
+            finalizada = False,)
         # Lógica para guardar la oferta en la base de datos, por ejemplo:
         # oferta = Oferta(monto=monto_oferta, usuario=request.user)
         # oferta.save()
@@ -266,14 +273,14 @@ def oferta_rechazada(request):
     publicacion = Publicacion.objects.filter(pk=oferta.get().id_publicacion)
     publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
     ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
-    send_mail(
-        "Aviso de oferta cancelada",
-        "Su oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
-        " de "+publicante.get().apellido+" "+publicante.get().nombre +" fue rechazada",
-        "settings.EMAIL_HOST_USER",
-        [ofertante.get().correo],
-    )
-    oferta.delete()
+    #send_mail(
+    #    "Aviso de oferta cancelada",
+    #    "Su oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
+    #    " de "+publicante.get().apellido+" "+publicante.get().nombre +" fue rechazada",
+    #    "settings.EMAIL_HOST_USER",
+    #    [ofertante.get().correo],
+    #)
+    oferta.update(finalizada=True)
     return redirect('ver_publicaciones')
 
 def cancelar_intercambio(request, id):
@@ -283,8 +290,7 @@ def cancelar_intercambio(request, id):
     publicacion = Publicacion.objects.filter(pk=id)
     publicacion.update(oculto=False)
     oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
-    oferta.delete()
-    intercambio.update(id_ofertante=-1)
+    oferta.update(finalizada=True)
     #send_mail(
     #    context["codigo"] + "Intercambio cancelado",
     #    "El intercambio con codigo: " + context["codigo"] + "a sido cancelado por: " + context["motivo_cancelacion"], 
@@ -325,15 +331,12 @@ def same_post_title(pedido, id_usuario_actual):
     #return redirect("welcome")
 
 def ver_historial(request):
-    usuario_id = request.user.id
-
     id_ou = Oferta.objects.filter(id_ofertante=request.user.id).values_list('pk',flat=True)
     print(id_ou)
     # agaro ids de las ofertas enviadas por el usuario que han sido aceptadas 
     #ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=Oferta.objects.filter(id_ofertante=request.user.id).values_list('id', flat=True)).values_list('id', flat=True)
     ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=id_ou).values_list('pk',flat=True)
     ids_ofertas_inter = Intercambio.objects.filter(id_ofertante__in=id_ou).values_list('id_ofertante',flat=True)
-    print(ids_ofertas_enviadas_aceptadas)
     # aca agarro todas las id de publicaciones de los intercambios
     ids_publicaciones_intercambios = Intercambio.objects.filter().values_list('id_publicacion', flat=True)
     #aca tengo que agarra de las publicaciones que tienen intercambio y me guardo el id del usuario
@@ -353,7 +356,6 @@ def ver_historial(request):
     intercambios2= Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas)
 
     nom_oe = Oferta.objects.filter(id__in=ids_ofertas_inter).values_list('titulo',flat=True)
-    print(nom_oe)
     ids_p_e = Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas).values_list('id_publicacion',flat=True)
     n= Publicacion.objects.filter(id__in=ids_p_e).values_list('titulo',flat=True)
 
@@ -363,10 +365,6 @@ def ver_historial(request):
     mostrar= intercambios1 | intercambios2
     
     combinadas = list(zip_longest(mostrar, mis, otros))
-
-    #print(len(mostrar))
-    #print(len(mis))
-    #print(len(otros))
 
     contexto = {
         'mostrar': mostrar,

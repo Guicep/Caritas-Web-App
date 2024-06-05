@@ -76,6 +76,7 @@ class Publicacion(models.Model):
     descripcion = models.CharField(max_length=200)
     id_usuario = models.IntegerField()
     oculto = models.BooleanField()
+    finalizada = models.BooleanField()
 
 class Comentario(models.Model):
     publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name='comentarios')
@@ -92,4 +93,5 @@ class Oferta(models.Model):
     cantidad = models.IntegerField(default=0)
     descripcion = models.CharField(max_length=200)
     aceptada = models.BooleanField()
+    finalizada = models.BooleanField()
 
