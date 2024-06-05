@@ -239,15 +239,15 @@ def oferta_aceptada(request):
             )
         resultado = Intercambio.objects.filter(pk=intercambio.pk)
         resultado.update(codigo_intercambio=1000+intercambio.pk)
-        send_mail(
-            "Aviso de oferta aceptada!",
-            "La oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
-            " de "+publicante.get().apellido+" "+publicante.get().nombre +" a sido aceptada!\n\n"+
-            "Su intercambio se realizara el dia "+resultado.get().fecha_acordada.strftime('%d/%m/%Y')+" con el codigo: "+
-            resultado.get().codigo_intercambio+" en la filial de La Plata",
-            "settings.EMAIL_HOST_USER",
-            [publicante.get().correo, ofertante.get().correo],
-        )
+        #send_mail(
+        #    "Aviso de oferta aceptada!",
+        #    "La oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
+        #    " de "+publicante.get().apellido+" "+publicante.get().nombre +" a sido aceptada!\n\n"+
+        #    "Su intercambio se realizara el dia "+resultado.get().fecha_acordada.strftime('%d/%m/%Y')+" con el codigo: "+
+        #    resultado.get().codigo_intercambio+" en la filial de La Plata",
+        #    "settings.EMAIL_HOST_USER",
+        #    [publicante.get().correo, ofertante.get().correo],
+        #)
         #request.session["mensaje"] = "En breve le llegara el mail con los datos para el intercambio"
     return redirect("welcome")
 
@@ -299,7 +299,37 @@ def set_error_mensaje(context, mensaje):
 def same_post_title(pedido, id_usuario_actual):
     return Publicacion.objects.filter(titulo=pedido, id_usuario=id_usuario_actual).exists()
 
+#def ver_historial(request):
+    #historial =Oferta.objects.filter(id_ofertante=request.user.id)
+    #print(historial)#get().titulo
+    #ofertas = Oferta.objects.filter(id_ofertante=request.user.id)
+    #oferta_ids = ofertas.values_list('id', flat=True)
+    #hola=Intercambio.objects.filter(id_ofertante__in=oferta_ids)
+    #print(hola.get().id_publicacion)
+    #return redirect("welcome")
+
 def ver_historial(request):
-    historial =Oferta.objects.filter(id_ofertante=request.user.id)
-    print(historial.get().titulo)
-    return redirect("welcome")
+    usuario_id = request.user.id
+
+    # agaro ids de las ofertas enviadas por el usuario que han sido aceptadas (estado 'pendiente')
+    ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=Oferta.objects.filter(id_ofertante=usuario_id).values_list('id', flat=True)).values_list('id_publicacion', flat=True)
+
+    # aca agarro todas las id de publicaciones de los intercambios
+    ids_publicaciones_intercambios = Intercambio.objects.filter().values_list('id_publicacion', flat=True)
+    #aca tengo que agarra de las publicaciones que tienen intercambio y me guardo el id del usuario
+    publicaciones_que_intercambios = Publicacion.objects.filter(id__in=ids_publicaciones_intercambios)
+    #aca tengo publicaciones del usuario que son intercambios, o sea hay que mostrar
+    publicaciones_del_usuario_quesonintercambio = publicaciones_que_intercambios.filter(id_usuario=request.user.id).values_list('id', flat=True)
+    #ofertas recibidas que se transformaron en intercambio, ya estoy loco en este punto.
+    ofertas_recibidas= Oferta.objects.filter(id_publicacion__in=publicaciones_del_usuario_quesonintercambio).values_list('id', flat=True)
+
+    intercambios1= Intercambio.objects.filter(id_ofertante__in=ofertas_recibidas)
+
+    intercambios2= Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas)
+
+    mostrar= intercambios1 | intercambios2
+
+    for intercambio in mostrar:
+        print(f"Codigo Intercambio: {intercambio.codigo_intercambio}, Estado: {intercambio.estado}, Fecha acordada: {intercambio.fecha_acordada}, Motivo Cancelacion(en caso de que haya sido cancelada): {intercambio.motivo_cancelacion}")
+
+    return redirect ("welcome")
