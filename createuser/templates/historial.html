@@ -5,12 +5,12 @@ Bienvenido
 {% endblock %}
 
 {% block content %}
-{% if mostrar %}
+{% if combinadas %}
     <ul class="list-group">
         <li class="list-group-item">Historial de intercambios:</li>
-        {% for intercambio in mostrar %}
+        {% for intercambio, a, b in combinadas %}
             <li class="list-group-item">
-                Codigo:{{ intercambio.codigo_intercambio }}, {{ intercambio.estado }}, {{ intercambio.fecha_acordada }} {{ intercambio.motivo_cancelacion }} 
+                Codigo:{{ intercambio.codigo_intercambio }},Estado: {{ intercambio.estado }},Fecha: {{ intercambio.fecha_acordada }} {% if intercambio.motivo_cancelacion %} Motivo de cancelacion{{ intercambio.motivo_cancelacion }} {% endif %} {{a}} {{b}}
                 <br>
             </li>
         {% endfor %}

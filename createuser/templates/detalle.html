@@ -87,7 +87,7 @@
         {% endfor %}
     </div>
 
-    <!-- Modal -->
+    <!-- Modal para agregar un comentario -->
     <div class="modal fade" id="ventanaEmergente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -95,12 +95,27 @@
                     <h5 class="modal-title" id="exampleModalLabel">Agregar un comentario</h5>
                 </div>
                 <div class="modal-body">
-                    <form method="post" class="new-comment-form">
+                    <form method="post" class="new-comment-form" id="new-comment-form">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <button type="submit" class="btn btn-primary">Publicar comentario</button>
                         <button type="reset" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de éxito -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Comentario publicado</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Su comentario ha sido publicado con éxito.</p>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -112,19 +127,69 @@
     document.addEventListener('DOMContentLoaded', function() {
         var toggleComentariosBtn = document.getElementById('toggleComentarios');
         var comentariosDiv = document.getElementById('comentarios');
+        var mostrarComentarios = sessionStorage.getItem('mostrarComentarios') === 'true';
+
+        // Restaurar el estado del botón "Mostrar Comentarios" después de recargar la página
+        if (mostrarComentarios) {
+            comentariosDiv.style.display = 'block';
+            toggleComentariosBtn.textContent = 'Ocultar Comentarios';
+        }
 
         toggleComentariosBtn.addEventListener('click', function() {
             if (comentariosDiv.style.display === 'none') {
                 comentariosDiv.style.display = 'block';
                 toggleComentariosBtn.textContent = 'Ocultar Comentarios';
+                // Almacenar el estado del botón "Mostrar Comentarios" en la sesión actual
+                sessionStorage.setItem('mostrarComentarios', true);
             } else {
                 comentariosDiv.style.display = 'none';
                 toggleComentariosBtn.textContent = 'Mostrar Comentarios';
+                // Almacenar el estado del botón "Mostrar Comentarios" en la sesión actual
+                sessionStorage.setItem('mostrarComentarios', false);
             }
+        });
+
+        // Clear sessionStorage when leaving the publication page
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.removeItem('mostrarComentarios');
+        });
+
+        // AJAX form submission for new comment
+        var commentForm = document.getElementById('new-comment-form');
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(commentForm);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', commentForm.action, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Show success modal
+                    $('#ventanaEmergente').modal('hide');
+                    $('#successModal').modal('show');
+                } else {
+                    // Handle error case
+                    alert('Error al publicar el comentario.');
+                }
+            };
+            xhr.send(formData);
+        });
+
+        // Reload page on success modal acceptance
+        $('#successModal').on('hidden.bs.modal', function () {
+            window.location.reload();
         });
     });
 </script>
+
+
+
+
+
+
 {% endblock %}
+
 
 
 

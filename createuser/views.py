@@ -5,10 +5,11 @@ from dateutil.relativedelta import relativedelta
 from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 import os
-
+from itertools import chain, zip_longest
 from django.shortcuts import render, get_object_or_404
 
 from django.urls import reverse
@@ -311,9 +312,13 @@ def same_post_title(pedido, id_usuario_actual):
 def ver_historial(request):
     usuario_id = request.user.id
 
+    id_ou = Oferta.objects.filter(id_ofertante=request.user.id).values_list('pk',flat=True)
+    print(id_ou)
     # agaro ids de las ofertas enviadas por el usuario que han sido aceptadas 
-    ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=Oferta.objects.filter(id_ofertante=usuario_id).values_list('id', flat=True)).values_list('id', flat=True)
-
+    #ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=Oferta.objects.filter(id_ofertante=request.user.id).values_list('id', flat=True)).values_list('id', flat=True)
+    ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=id_ou).values_list('pk',flat=True)
+    ids_ofertas_inter = Intercambio.objects.filter(id_ofertante__in=id_ou).values_list('id_ofertante',flat=True)
+    print(ids_ofertas_enviadas_aceptadas)
     # aca agarro todas las id de publicaciones de los intercambios
     ids_publicaciones_intercambios = Intercambio.objects.filter().values_list('id_publicacion', flat=True)
     #aca tengo que agarra de las publicaciones que tienen intercambio y me guardo el id del usuario
@@ -324,15 +329,33 @@ def ver_historial(request):
     ofertas_recibidas= Oferta.objects.filter(id_publicacion__in=publicaciones_del_usuario_quesonintercambio).values_list('id', flat=True)
 
     intercambios1= Intercambio.objects.filter(id_ofertante__in=ofertas_recibidas)
+    idsp = Intercambio.objects.filter(id_ofertante__in=ofertas_recibidas).values_list('id_publicacion',flat=True)
+    idso = Intercambio.objects.filter(id_ofertante__in=ofertas_recibidas).values_list('id_ofertante',flat=True)
+    nombre_mis = Publicacion.objects.filter(id__in=idsp).values_list('titulo',flat=True)
+    o = Oferta.objects.filter(id__in=idso).values_list('titulo', flat=True)
+
 
     intercambios2= Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas)
 
-    mostrar= intercambios1 | intercambios2
+    nom_oe = Oferta.objects.filter(id__in=ids_ofertas_inter).values_list('titulo',flat=True)
+    print(nom_oe)
+    ids_p_e = Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas).values_list('id_publicacion',flat=True)
+    n= Publicacion.objects.filter(id__in=ids_p_e).values_list('titulo',flat=True)
 
-    for intercambio in mostrar:
-        print(f"Codigo Intercambio: {intercambio.codigo_intercambio}, Estado: {intercambio.estado}, Fecha acordada: {intercambio.fecha_acordada}, Motivo Cancelacion(en caso de que haya sido cancelada): {intercambio.motivo_cancelacion}")
+    mis=list(chain( nombre_mis,nom_oe))
+    otros=list(chain( o,n))
+
+    mostrar= intercambios1 | intercambios2
+    
+    combinadas = list(zip_longest(mostrar, mis, otros))
+
+    #print(len(mostrar))
+    #print(len(mis))
+    #print(len(otros))
 
     contexto = {
-        'mostrar': mostrar
+        'mostrar': mostrar,
+        'mis':mis,
+        'otros':otros
     }
-    return render (request, "historial.html", contexto)
+    return render (request, "historial.html", {'combinadas': combinadas})
