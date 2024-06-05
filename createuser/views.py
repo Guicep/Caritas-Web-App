@@ -311,8 +311,8 @@ def same_post_title(pedido, id_usuario_actual):
 def ver_historial(request):
     usuario_id = request.user.id
 
-    # agaro ids de las ofertas enviadas por el usuario que han sido aceptadas (estado 'pendiente')
-    ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=Oferta.objects.filter(id_ofertante=usuario_id).values_list('id', flat=True)).values_list('id_publicacion', flat=True)
+    # agaro ids de las ofertas enviadas por el usuario que han sido aceptadas 
+    ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=Oferta.objects.filter(id_ofertante=usuario_id).values_list('id', flat=True)).values_list('id', flat=True)
 
     # aca agarro todas las id de publicaciones de los intercambios
     ids_publicaciones_intercambios = Intercambio.objects.filter().values_list('id_publicacion', flat=True)
@@ -332,4 +332,7 @@ def ver_historial(request):
     for intercambio in mostrar:
         print(f"Codigo Intercambio: {intercambio.codigo_intercambio}, Estado: {intercambio.estado}, Fecha acordada: {intercambio.fecha_acordada}, Motivo Cancelacion(en caso de que haya sido cancelada): {intercambio.motivo_cancelacion}")
 
-    return redirect ("welcome")
+    contexto = {
+        'mostrar': mostrar
+    }
+    return render (request, "historial.html", contexto)

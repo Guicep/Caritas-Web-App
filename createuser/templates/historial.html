@@ -1,0 +1,21 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+Bienvenido
+{% endblock %}
+
+{% block content %}
+{% if mostrar %}
+    <ul class="list-group">
+        <li class="list-group-item">Historial de intercambios:</li>
+        {% for intercambio in mostrar %}
+            <li class="list-group-item">
+                Codigo:{{ intercambio.codigo_intercambio }}, {{ intercambio.estado }}, {{ intercambio.fecha_acordada }} {{ intercambio.motivo_cancelacion }} 
+                <br>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    No hay intercambios para mostrar.
+{% endif %}
+{% endblock %}
