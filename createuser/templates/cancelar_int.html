@@ -1,5 +1,4 @@
 <div id="cuadro-oferta" style="display: none;">
-    <h2>Ofertar</h2>
     <form method="post" action="{% url 'cancelar_intercambio' item.id %}">
         {% csrf_token %}
         <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{item.id}}">
@@ -88,4 +87,5 @@
     function ocultarCancelar() {
         document.getElementById('cuadro-oferta').style.display = 'none';
     }
+
  </script>

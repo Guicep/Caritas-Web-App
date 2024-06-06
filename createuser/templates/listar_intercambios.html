@@ -5,11 +5,12 @@
             <li class="list-group-item">Codigos de intercambios pendientes:</li>
         {% for item in codigos %}
             <li class="list-group-item">
-                Codigo: {{cod.codigo_intercambio}}
+                Codigo: {{item.codigo_intercambio}}
                 <button class="btn btn-danger float-right" onclick="mostrarCancelar()">
                     Cancelar
                 </button>
                 {% include 'cancelar_int.html' with id=item.id %}
+                <a class="btn btn-primary float-right" onclick="return confirm('Esta seguro?')" href="{% url 'confirmar_intercambio' item.id %}">Confirmar</a>
             <br>
             </li>
             {% endfor%}

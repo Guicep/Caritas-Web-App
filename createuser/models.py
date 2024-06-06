@@ -58,7 +58,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 
 def get_default_fecha_acordada():
-    return datetime.now().date() + timedelta(days=2)
+    return datetime.now().date() + timedelta(days=0)
 
 class Intercambio(models.Model):
     id_publicacion = models.IntegerField()

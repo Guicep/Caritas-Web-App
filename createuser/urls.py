@@ -21,4 +21,6 @@ urlpatterns = [
     path('historial/', views.ver_historial, name='historial'),
     path('cancelar_intercambio/<int:id>', views.cancelar_intercambio, name='cancelar_intercambio'),
     path('listar_intercambios', views.listar_intercambios, name='listar_intercambios'),
+    path('confirmar_intercambio/<int:id>', views.confirmar_intercambio, name='confirmar_intercambio'),
+
 ]

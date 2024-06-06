@@ -112,10 +112,10 @@ def welcome(request):
     q = request.GET.get('q', '')
     tipo = request.GET.get('tipo', '')
     ofertas_usuario = Oferta.objects.filter(id_ofertante=request.user.id).values_list("pk", flat=True)
-    resultados_ocultos_ofertante = Intercambio.objects.filter(id_ofertante__in=ofertas_usuario).values_list("id_publicacion", flat=True)
+    resultados_ocultos_ofertante = Intercambio.objects.filter(id_ofertante__in=ofertas_usuario, estado='Pendiente').values_list("id_publicacion", flat=True)
     resultados_publicacion_ocultas = Publicacion.objects.filter(pk__in=resultados_ocultos_ofertante)
     resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id).exclude(oculto=True) | resultados_publicacion_ocultas
-    print(resultados)
+
 
     if q:
         resultados = resultados.filter(titulo__icontains=q)
@@ -298,6 +298,19 @@ def cancelar_intercambio(request, id):
     #    context["emails"])
     return redirect('welcome')
 
+def confirmar_intercambio(request, id):
+
+    intercambio = Intercambio.objects.filter(pk=id, estado='Pendiente')
+    
+    # Actualizar estado de oferta y publicación
+    oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
+    
+    publicacion = Publicacion.objects.filter(pk=intercambio.get().id_publicacion)
+    publicacion.update(finalizada=True)
+    oferta.update(finalizada=True)
+    intercambio.update(estado="confirmado")
+    return redirect('welcome')
+
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
     return len(cadena) >= 6
@@ -375,6 +388,6 @@ def ver_historial(request):
 
 def listar_intercambios(request):
     hoy=date.today()
-    codigos=Intercambio.objects.filter(fecha_acordada=hoy,estado='Pendiente')
+    codigos=Intercambio.objects.filter(fecha_acordada=hoy, estado='Pendiente')
 
     return render(request, "listar_intercambios.html",{'codigos': codigos})
