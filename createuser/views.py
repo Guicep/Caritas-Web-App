@@ -11,6 +11,7 @@ from django.conf import settings
 import os
 from itertools import chain, zip_longest
 from django.shortcuts import render, get_object_or_404
+from django.db import connection
 
 from django.urls import reverse
 
@@ -115,8 +116,7 @@ def welcome(request):
     resultados_ocultos_ofertante = Intercambio.objects.filter(id_ofertante__in=ofertas_usuario, estado='Pendiente').values_list("id_publicacion", flat=True)
     resultados_publicacion_ocultas = Publicacion.objects.filter(pk__in=resultados_ocultos_ofertante)
     resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id).exclude(oculto=True) | resultados_publicacion_ocultas
-
-
+    
     if q:
         resultados = resultados.filter(titulo__icontains=q)
     if tipo:  # Si se ha seleccionado un tipo
@@ -284,12 +284,12 @@ def oferta_rechazada(request):
     return redirect('ver_publicaciones')
 
 def cancelar_intercambio(request, id):
-    intercambio = Intercambio.objects.filter(id_publicacion=id)
-    intercambio.update(estado="Cancelado")
-    intercambio.update(motivo_cancelacion=request.POST.get('motivo'))
+    intercambio = Intercambio.objects.filter(id_publicacion=id).exclude(estado='Cancelado')
     publicacion = Publicacion.objects.filter(pk=id)
-    publicacion.update(oculto=False)
     oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
+    intercambio.update(motivo_cancelacion=request.POST.get('motivo'))
+    intercambio.update(estado="Cancelado")
+    publicacion.update(oculto=False)
     oferta.update(finalizada=True)
     #send_mail(
     #    context["codigo"] + "Intercambio cancelado",
@@ -345,7 +345,6 @@ def same_post_title(pedido, id_usuario_actual):
 
 def ver_historial(request):
     id_ou = Oferta.objects.filter(id_ofertante=request.user.id).values_list('pk',flat=True)
-    print(id_ou)
     # agaro ids de las ofertas enviadas por el usuario que han sido aceptadas 
     #ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=Oferta.objects.filter(id_ofertante=request.user.id).values_list('id', flat=True)).values_list('id', flat=True)
     ids_ofertas_enviadas_aceptadas = Intercambio.objects.filter(id_ofertante__in=id_ou).values_list('pk',flat=True)
@@ -358,23 +357,37 @@ def ver_historial(request):
     publicaciones_del_usuario_quesonintercambio = publicaciones_que_intercambios.filter(id_usuario=request.user.id).values_list('id', flat=True)
     #ofertas recibidas que se transformaron en intercambio, ya estoy loco en este punto.
     ofertas_recibidas= Oferta.objects.filter(id_publicacion__in=publicaciones_del_usuario_quesonintercambio).values_list('id', flat=True)
+    
+    #sql = "SELECT p.titulo FROM createuser_publicacion p INNER JOIN createuser_intercambio i on p.id = i.id_publicacion INNER JOIN createuser_oferta o on i.id_ofertante = o.id"
+
+    #cursor = connection.cursor()
+    #cursor.execute(sql)
+    #results = cursor.fetchall()
 
     intercambios1= Intercambio.objects.filter(id_ofertante__in=ofertas_recibidas)
     idsp = Intercambio.objects.filter(id_ofertante__in=ofertas_recibidas).values_list('id_publicacion',flat=True)
     idso = Intercambio.objects.filter(id_ofertante__in=ofertas_recibidas).values_list('id_ofertante',flat=True)
     nombre_mis = Publicacion.objects.filter(id__in=idsp).values_list('titulo',flat=True)
+    nombre_mis2 = Publicacion.objects.filter(id__in=idsp).values_list('titulo',flat=True)
+    lista = []
+    for index in idsp:
+        lista.append(Publicacion.objects.filter(id=index).values_list('titulo', flat=True))
+    result_list = list(chain(*lista ))
+    print(result_list)
     o = Oferta.objects.filter(id__in=idso).values_list('titulo', flat=True)
-
-
     intercambios2= Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas)
 
     nom_oe = Oferta.objects.filter(id__in=ids_ofertas_inter).values_list('titulo',flat=True)
     ids_p_e = Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas).values_list('id_publicacion',flat=True)
+    lista2 = []
+    for index in ids_p_e:
+        lista2.append(Publicacion.objects.filter(id=index).values_list('titulo', flat=True))
+    result_list2 = list(chain(*lista2))
+    print(ids_p_e)
     n= Publicacion.objects.filter(id__in=ids_p_e).values_list('titulo',flat=True)
-
-    mis=list(chain( nombre_mis,nom_oe))
-    otros=list(chain( o,n))
-
+    #lista_sin_parentesis = [tupla[0] for tupla in results]
+    mis=list(chain( result_list,nom_oe))
+    otros=list(chain( o, result_list2))
     mostrar= intercambios1 | intercambios2
     
     combinadas = list(zip_longest(mostrar, mis, otros))

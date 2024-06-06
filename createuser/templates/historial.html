@@ -10,7 +10,7 @@ Bienvenido
         <li class="list-group-item">Historial de intercambios:</li>
         {% for intercambio, a, b in combinadas %}
             <li class="list-group-item">
-                Codigo:{{ intercambio.codigo_intercambio }},Estado: {{ intercambio.estado }},Fecha: {{ intercambio.fecha_acordada }} {% if intercambio.motivo_cancelacion %} Motivo de cancelacion{{ intercambio.motivo_cancelacion }} {% endif %} {{a}} {{b}}
+                <b>Codigo: </b>{{ intercambio.codigo_intercambio }} <b>Estado:</b> {{ intercambio.estado }} <b>Fecha:</b> {{ intercambio.fecha_acordada }} <b>Mi item</b> {{a}} <b>intercambio:</b> {{b}} {% if intercambio.motivo_cancelacion %} <b>Motivo de cancelacion:</b> {{ intercambio.motivo_cancelacion }} {% endif %}
                 <br>
             </li>
         {% endfor %}
