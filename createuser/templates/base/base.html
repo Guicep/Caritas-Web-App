@@ -36,6 +36,9 @@
             <li><a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a></li>
             <li><a class="nav-link" href="{% url 'userlist' %}">Mostrar Usuarios</a></li>
           {% endif %}
+          {% if request.user.is_staff and not request.user.is_superuser %}
+          <li><a class="nav-link" href="{% url 'listar_intercambios' %}">Listar Codigos intercambios</a></li>
+          {% endif %}
           {% if request.user.is_authenticated %}
             <li><a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a></li>
           {% endif %}

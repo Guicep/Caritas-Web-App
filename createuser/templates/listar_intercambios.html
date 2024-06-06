@@ -1,0 +1,21 @@
+{% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
+{% block content %}
+    {% if codigos%}
+        <ul class="list-group">
+            <li class="list-group-item">Codigos de intercambios pendientes:</li>
+        {% for item in codigos %}
+            <li class="list-group-item">
+                Codigo: {{cod.codigo_intercambio}}
+                <button class="btn btn-danger float-right" onclick="mostrarCancelar()">
+                    Cancelar
+                </button>
+                {% include 'cancelar_int.html' with id=item.id %}
+            <br>
+            </li>
+            {% endfor%}
+        </ul>
+    {% else %}
+        No hay codigos para mostrar.
+    {% endif %}        
+        
+{% endblock %}

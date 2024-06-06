@@ -372,3 +372,9 @@ def ver_historial(request):
         'otros':otros
     }
     return render (request, "historial.html", {'combinadas': combinadas})
+
+def listar_intercambios(request):
+    hoy=date.today()
+    codigos=Intercambio.objects.filter(fecha_acordada=hoy,estado='Pendiente')
+
+    return render(request, "listar_intercambios.html",{'codigos': codigos})
