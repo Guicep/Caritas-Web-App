@@ -10,7 +10,7 @@
         <li class="list-group-item">{{ item.categoria }}</li>
         <li class="list-group-item">{{ item.fecha_publicacion }}</li>
         {% if tiene_oferta and not item.oculto %}
-            <li class="list-group-item"><b>Su oferta esta pendiente a ser aceptada</b></li>
+            <li class="list-group-item"><b>Su oferta está pendiente a ser aceptada</b></li>
         {% endif %}
         <li class="list-group-item">
             {% if item.id_usuario == request.user.id and not item.oculto %}
@@ -43,14 +43,16 @@
     <!-- Botón para mostrar comentarios -->
     <button id="toggleComentarios" class="btn btn-info mt-4">Mostrar Comentarios</button>
 
-    <!-- Sección de Comentarios -->
-    <div id="comentarios" class="mt-4" style="display: none;">
+    <div id="comentarios" class="mt-4" style="display:none;">
         <h3>Comentarios</h3>
         {% for comentario in comentarios %}
             <div class="comment" style="margin-bottom: 20px; padding: 15px; border: 1px solid #c4d4ca; border-radius: 8px; background-color: #eaf7f4;">
                 <div class="comment-header" style="margin-bottom: 5px;">
                     <strong>{{ comentario.usuario.nombre }} {{ comentario.usuario.apellido }}</strong>
                     <span class="comment-date" style="color: #666; font-size: 12px;">{{ comentario.fecha_creacion|date:"d M Y H:i" }}</span>
+                    {% if request.user == comentario.usuario or request.user.is_staff %}
+                        <button class="btn btn-sm btn-warning editar-comentario-btn" data-id="{{ comentario.id }}">Editar</button>
+                    {% endif %}
                 </div>
                 <div class="comment-content" style="margin-bottom: 10px;">
                     <p>{{ comentario.contenido }}</p>
@@ -67,14 +69,12 @@
                         </div>
                     </div>
                 {% endfor %}
-
-                <!-- Botón para abrir la ventana modal -->
-                {% if not comentario.respondido and item.id_usuario == request.user.id and request.user.nombre == zidane %}
+                <!-- Botón para abrir la ventana modal para responder -->
+                {% if not comentario.respondido and item.id_usuario == request.user.id and request.user.nombre == 'zidane' %}
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalResponder{{ comentario.id }}">
                         Responder
                     </button>
-
-                    <!-- Ventana modal -->
+                    <!-- Ventana modal para responder -->
                     <div class="modal fade" id="modalResponder{{ comentario.id }}" tabindex="-1" role="dialog" aria-labelledby="modalResponderLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -119,7 +119,7 @@
         </div>
     </div>
 
-    <!-- Modal de éxito -->
+    <!-- Modal de éxito para nuevos comentarios -->
     <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -133,6 +133,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de éxito para editar comentarios -->
+    <div class="modal fade" id="editarSuccessModal" tabindex="-1" role="dialog" aria-labelledby="editarSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarSuccessModalLabel">Comentario actualizado</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Su comentario ha sido actualizado con éxito.</p>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar comentario -->
+    <div class="modal fade" id="editarComentarioModal" tabindex="-1" role="dialog" aria-labelledby="editarComentarioModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarComentarioModalLabel">Editar Comentario</h5>
+                </div>
+                <div class="modal-body" id="editar-comentario-modal-body">
+                    <!-- El contenido del formulario de edición se cargará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block script %}
@@ -142,7 +171,6 @@
         var comentariosDiv = document.getElementById('comentarios');
         var mostrarComentarios = sessionStorage.getItem('mostrarComentarios') === 'true';
 
-        // Restaurar el estado del botón "Mostrar Comentarios" después de recargar la página
         if (mostrarComentarios) {
             comentariosDiv.style.display = 'block';
             toggleComentariosBtn.textContent = 'Ocultar Comentarios';
@@ -152,22 +180,18 @@
             if (comentariosDiv.style.display === 'none') {
                 comentariosDiv.style.display = 'block';
                 toggleComentariosBtn.textContent = 'Ocultar Comentarios';
-                // Almacenar el estado del botón "Mostrar Comentarios" en la sesión actual
                 sessionStorage.setItem('mostrarComentarios', true);
             } else {
                 comentariosDiv.style.display = 'none';
                 toggleComentariosBtn.textContent = 'Mostrar Comentarios';
-                // Almacenar el estado del botón "Mostrar Comentarios" en la sesión actual
                 sessionStorage.setItem('mostrarComentarios', false);
             }
         });
 
-        // Clear sessionStorage when leaving the publication page
         window.addEventListener('beforeunload', function() {
             sessionStorage.removeItem('mostrarComentarios');
         });
 
-        // AJAX form submission for new comment
         var commentForm = document.getElementById('new-comment-form');
         commentForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -178,30 +202,74 @@
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             xhr.onload = function() {
                 if (xhr.status === 200) {
-                    // Show success modal
                     $('#ventanaEmergente').modal('hide');
                     $('#successModal').modal('show');
                 } else {
-                    // Handle error case
                     alert('Error al publicar el comentario.');
                 }
             };
             xhr.send(formData);
         });
 
-        // Reload page on success modal acceptance
         $('#successModal').on('hidden.bs.modal', function () {
+            window.location.reload();
+        });
+
+        // Cargar el formulario de edición de comentario en el modal
+        document.querySelectorAll('.editar-comentario-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                var comentarioId = this.getAttribute('data-id');
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{% url "editar_comentario" 0 %}'.replace('0', comentarioId), true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        document.getElementById('editar-comentario-modal-body').innerHTML = response.html;
+                        $('#editarComentarioModal').modal('show');
+                        bindEditFormSubmit(); // Llamar a la función para vincular el evento de envío del formulario
+                    } else {
+                        alert('Error al cargar el formulario de edición.');
+                    }
+                };
+                xhr.send();
+            });
+        });
+
+        // Función para vincular el envío del formulario de edición de comentario
+        function bindEditFormSubmit() {
+            var editCommentForm = document.getElementById('editar-comentario-form');
+            editCommentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(editCommentForm);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', editCommentForm.action, true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            $('#editarComentarioModal').modal('hide');
+                            $('#editarSuccessModal').modal('show');
+                        } else {
+                            alert('Error al guardar los cambios.');
+                        }
+                    } else {
+                        alert('Error al guardar los cambios.');
+                    }
+                };
+                xhr.send(formData);
+            });
+        }
+
+        $('#editarSuccessModal').on('hidden.bs.modal', function () {
             window.location.reload();
         });
     });
 </script>
-
-
-
-
-
-
 {% endblock %}
+
+
 
 
 

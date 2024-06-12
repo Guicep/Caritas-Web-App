@@ -12,6 +12,9 @@ import os
 from itertools import chain, zip_longest
 from django.shortcuts import render, get_object_or_404
 from django.db import connection
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.views.decorators.http import require_http_methods
 
 from django.urls import reverse
 
@@ -421,3 +424,18 @@ def listar_intercambios(request):
 
     return render(request, "listar_intercambios.html",{'codigos': codigos})
 
+
+def editar_comentario(request, comentario_id):
+    comentario = get_object_or_404(Comentario, id=comentario_id, usuario=request.user)
+    
+    if request.method == 'POST':
+        form = ComentarioForm(request.POST, instance=comentario)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = ComentarioForm(instance=comentario)
+        html = render_to_string('editar_comentario_modal.html', {'form': form, 'comentario': comentario}, request=request)
+        return JsonResponse({'html': html})
