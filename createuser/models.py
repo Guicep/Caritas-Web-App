@@ -95,3 +95,10 @@ class Oferta(models.Model):
     aceptada = models.BooleanField()
     finalizada = models.BooleanField()
 
+class Tarjeta(models.Model):
+    id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='tarjeta')
+    numero = models.IntegerField()
+    validez = models.DateField()
+    titular = models.CharField(max_length=150)
+    cvc = models.IntegerField()
+    tipo = models.CharField(max_length=50)

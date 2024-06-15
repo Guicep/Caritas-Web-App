@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Publicacion, Comentario, Intercambio
+from .models import Usuario, Publicacion, Comentario, Intercambio, Tarjeta
 from django.forms import TextInput
 
 class UsuarioForm(forms.ModelForm):
@@ -96,4 +96,24 @@ class IntercambioForm(forms.ModelForm):
         model = Intercambio
         fields = ['id_publicacion', 'id_ofertante', 'fecha_acordada', 'estado', 'motivo_cancelacion']
 
-        
+
+class TarjetaForm(forms.ModelForm):
+    # Configuracion de los inputs como en html
+    textInput_id_usuario = TextInput(attrs={"type": "number", "maxlength": 30})
+    textInput_numero = TextInput(attrs={"type": "number", "maxlength": 16})
+    textInput_validez = TextInput(attrs={"type": "Date"})
+    textInput_titular = TextInput(attrs={"type": "text", "maxlength": 150})
+    textInput_cvc = TextInput(attrs={"type": "number", "maxlength": 3})
+    textInput_tipo = (('Mastercard', 'Mastercard'), ('Visa', 'Visa'), ('AmericanExpres', 'AmericanExpres'))
+
+    # Asignacion de la configuracion
+    id_usuario = forms.CharField(widget=textInput_id_usuario, label='id usuario')
+    numero = forms.CharField(widget=textInput_numero, label='numero de tarjeta')
+    validez = forms.CharField(widget=textInput_validez, label='validez')
+    titular = forms.CharField(widget=textInput_titular, label='titular')
+    cvc = forms.CharField(widget=textInput_cvc, label='cvc')
+    tipo = forms.ChoiceField(choices=textInput_tipo, initial='1')
+
+    class Meta:
+        model = Tarjeta
+        fields = ['id_usuario', 'numero', 'validez', 'titular', 'cvc', 'tipo']
