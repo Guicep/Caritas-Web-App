@@ -439,3 +439,18 @@ def editar_comentario(request, comentario_id):
         form = ComentarioForm(instance=comentario)
         html = render_to_string('editar_comentario_modal.html', {'form': form, 'comentario': comentario}, request=request)
         return JsonResponse({'html': html})
+    
+
+
+def eliminar_comentario(request, comentario_id):
+    comentario = get_object_or_404(Comentario, id=comentario_id)
+
+    # Verificar que el usuario actual sea el autor del comentario
+    if request.user == comentario.usuario:
+        comentario.delete()
+        messages.success(request, 'El comentario ha sido eliminado correctamente.')
+    else:
+        messages.error(request, 'No tienes permiso para eliminar este comentario.')
+
+    # Redirigir a la página de detalle de la publicación u otra página relevante
+    return redirect('detalle.html')

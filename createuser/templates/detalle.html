@@ -10,7 +10,7 @@
         <li class="list-group-item">{{ item.categoria }}</li>
         <li class="list-group-item">{{ item.fecha_publicacion }}</li>
         {% if tiene_oferta and not item.oculto %}
-            <li class="list-group-item"><b>Su oferta está pendiente a ser aceptada</b></li>
+            <li class="list-group-item"><b>Su oferta está pendiente de ser aceptada</b></li>
         {% endif %}
         <li class="list-group-item">
             {% if item.id_usuario == request.user.id and not item.oculto %}
@@ -50,8 +50,16 @@
                 <div class="comment-header" style="margin-bottom: 5px;">
                     <strong>{{ comentario.usuario.nombre }} {{ comentario.usuario.apellido }}</strong>
                     <span class="comment-date" style="color: #666; font-size: 12px;">{{ comentario.fecha_creacion|date:"d M Y H:i" }}</span>
-                    {% if request.user == comentario.usuario or request.user.is_staff %}
-                        <button class="btn btn-sm btn-warning editar-comentario-btn" data-id="{{ comentario.id }}">Editar</button>
+                    {% if not comentario.respondido %}
+                        {% if request.user == comentario.usuario or request.user.is_staff %}
+                            <button class="btn btn-sm btn-warning editar-comentario-btn" data-id="{{ comentario.id }}">Editar</button>
+                        {% endif %}
+                        {% if request.user == comentario.usuario %}
+                            <form action="{% url 'eliminar_comentario' comentario.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                 </div>
                 <div class="comment-content" style="margin-bottom: 10px;">
@@ -169,11 +177,14 @@
     document.addEventListener('DOMContentLoaded', function() {
         var toggleComentariosBtn = document.getElementById('toggleComentarios');
         var comentariosDiv = document.getElementById('comentarios');
-        var mostrarComentarios = sessionStorage.getItem('mostrarComentarios') === 'true';
 
-        if (mostrarComentarios) {
+        // Restaurar el estado de los comentarios (mostrar/ocultar) al cargar la página
+        if (sessionStorage.getItem('mostrarComentarios') === 'true') {
             comentariosDiv.style.display = 'block';
             toggleComentariosBtn.textContent = 'Ocultar Comentarios';
+        } else {
+            comentariosDiv.style.display = 'none';
+            toggleComentariosBtn.textContent = 'Mostrar Comentarios';
         }
 
         toggleComentariosBtn.addEventListener('click', function() {
@@ -268,6 +279,7 @@
     });
 </script>
 {% endblock %}
+
 
 
 
