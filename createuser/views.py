@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -454,3 +454,18 @@ def eliminar_comentario(request, comentario_id):
 
     # Redirigir a la página de detalle de la publicación u otra página relevante
     return redirect('detalle.html')
+
+
+def listar_donaciones(request):
+    return render(request, "listar_donaciones.html")
+
+def registrar_tarjeta(request):
+    if request.method == "POST":
+        form = TarjetaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("welcome")
+    else:
+        form = TarjetaForm()
+    return render(request, 'registrar_tarjeta.html', {'form': form})
+
