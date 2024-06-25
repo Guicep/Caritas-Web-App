@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Publicacion, Comentario, Intercambio, Tarjeta
+from .models import Usuario, Publicacion, Comentario, Intercambio, Tarjeta, DonacionProducto
 from django.forms import TextInput
 
 class UsuarioForm(forms.ModelForm):
@@ -117,3 +117,23 @@ class TarjetaForm(forms.ModelForm):
     class Meta:
         model = Tarjeta
         fields = ['id_usuario', 'numero', 'validez', 'titular', 'cvc', 'tipo']
+
+class DonacionProductoForm(forms.ModelForm):
+    # Configuracion de los inputs como en html
+    textInput_nombre_producto = TextInput(attrs={"placeholder": "Nombre de producto", "maxlength": 30})
+    textInput_cantidad = TextInput(attrs={"placeholder": "Cantidad", "maxlength": 16})
+    textInput_donante_nombre = TextInput(attrs={"placeholder": "Nombre del donante"})
+    textInput_donante_apellido = TextInput(attrs={"placeholder": "Apellido del donante", "maxlength": 150})
+    textInput_dni_apellido = TextInput(attrs={"placeholder": "DNI del donante", "maxlength": 8})
+
+    # Asignacion de la configuracion
+    nombre_producto = forms.CharField(widget=textInput_nombre_producto, label='')
+    cantidad = forms.IntegerField(widget=textInput_cantidad, label='')
+    nombre_donante = forms.CharField(widget=textInput_donante_nombre, label='')
+    apellido_donante = forms.CharField(widget=textInput_donante_apellido, label='')
+    dni_donante = forms.IntegerField(widget=textInput_dni_apellido, required=False, label='')
+
+    class Meta:
+        model = DonacionProducto
+        fields = ['nombre_producto', 'cantidad', 'nombre_donante', 'apellido_donante']
+

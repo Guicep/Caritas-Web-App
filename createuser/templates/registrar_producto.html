@@ -1,0 +1,10 @@
+{% extends "base/base.html" %} {% block title %} Publicar producto {% endblock %}
+{% block content %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="centered">
+            {{ forms.as_p }}
+            <input class="btn btn-primary float" type="submit" value="Aceptar"><br><br>
+        </div>
+    </form>
+{% endblock %}

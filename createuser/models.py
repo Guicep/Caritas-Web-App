@@ -102,3 +102,11 @@ class Tarjeta(models.Model):
     titular = models.CharField(max_length=150)
     cvc = models.IntegerField()
     tipo = models.CharField(max_length=50)
+
+class DonacionProducto(models.Model):
+    nombre_producto = models.CharField(max_length=100)
+    cantidad = models.IntegerField()
+    nombre_donante = models.CharField(max_length=100)
+    apellido_donante = models.CharField(max_length=100)
+    # Se buscar en usuarios si esta registrado, si no este campo puede quedar blanco
+    donante = models.ForeignKey(Usuario, on_delete=models.CASCADE, blank=True, null=True)

@@ -2,7 +2,7 @@
 {% block content %}
     {% if codigos%}
         <ul class="list-group">
-            <li class="list-group-item">Codigos de intercambios pendientes:</li>
+            <li class="list-group-item">Codigos de intercambios pendientes del dia:</li>
         {% for item in codigos %}
             <li class="list-group-item">
                 Codigo: {{item.codigo_intercambio}}

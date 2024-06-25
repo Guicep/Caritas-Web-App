@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm, DonacionProductoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -198,25 +198,25 @@ def borrar(request,pk):
     lista_cor = list()
     lista_cor.append(user.correo)
 
-    sql = "SELECT u.correo FROM createuser_oferta o INNER JOIN createuser_usuario u on o.id_ofertante = u.id WHERE o.id_publicacion = "+str(pk)
+    #sql = "SELECT u.correo FROM createuser_oferta o INNER JOIN createuser_usuario u on o.id_ofertante = u.id WHERE o.id_publicacion = "+str(pk)
 
-    cursor = connection.cursor()
-    cursor.execute(sql)
-    results = cursor.fetchall()
-    for res in results:
-        cad = ""
-        for letra in res:
-            if not (letra=="(" or letra==")" or letra ==","):
-                cad = cad+letra
+    #cursor = connection.cursor()
+    #cursor.execute(sql)
+    #results = cursor.fetchall()
+    #for res in results:
+    #    cad = ""
+    #    for letra in res:
+    #        if not (letra=="(" or letra==")" or letra ==","):
+    #            cad = cad+letra
 
-        lista_cor.append(cad)
+    #    lista_cor.append(cad)
     if(item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser):
         send_mail(
             "Publicacion Eliminada",
             "Tu/la Publicacion: "+item.titulo+" a sido eliminada",
             "settings.EMAIL_HOST_USER",
             [lista_cor])
-        item.delete()
+        item.update(finalizada=True)
         print("se envio correo a:", lista_cor)
     return redirect('ver_publicaciones')
 
@@ -276,15 +276,15 @@ def oferta_aceptada(request):
         oferta.update(aceptada=True)
         resultado = Intercambio.objects.filter(pk=intercambio.pk)
         resultado.update(codigo_intercambio=1000+intercambio.pk)
-        #send_mail(
-        #    "Aviso de oferta aceptada!",
-        #    "La oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
-        #    " de "+publicante.get().apellido+" "+publicante.get().nombre +" a sido aceptada!\n\n"+
-        #    "Su intercambio se realizara el dia "+resultado.get().fecha_acordada.strftime('%d/%m/%Y')+" con el codigo: "+
-        #    resultado.get().codigo_intercambio+" en la filial de La Plata",
-        #    "settings.EMAIL_HOST_USER",
-        #    [ofertante.get().correo],
-        #)
+        send_mail(
+            "Aviso de oferta aceptada!",
+            "La oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
+            " de "+publicante.get().apellido+" "+publicante.get().nombre +" a sido aceptada!\n\n"+
+            "Su intercambio se realizara el dia "+resultado.get().fecha_acordada.strftime('%d/%m/%Y')+" con el codigo: "+
+            resultado.get().codigo_intercambio+" en la filial de La Plata",
+            "settings.EMAIL_HOST_USER",
+            [publicante.get().correo, ofertante.get().correo],
+        )
     return redirect("detalle_publicacion", pk=publicacion.get().pk)
 
 def oferta_rechazada(request):
@@ -292,15 +292,15 @@ def oferta_rechazada(request):
     publicacion = Publicacion.objects.filter(pk=oferta.get().id_publicacion)
     publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
     ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
-    #send_mail(
-    #    "Aviso de oferta cancelada",
-    #    "Su oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
-    #    " de "+publicante.get().apellido+" "+publicante.get().nombre +" fue rechazada",
-    #    "settings.EMAIL_HOST_USER",
-    #    [ofertante.get().correo],
-    #)
+    send_mail(
+        "Aviso de oferta cancelada",
+        "Su oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
+        " de "+publicante.get().apellido+" "+publicante.get().nombre +" fue rechazada",
+        "settings.EMAIL_HOST_USER",
+        [ofertante.get().correo],
+    )
     oferta.update(finalizada=True)
-    return redirect('ver_publicaciones')
+    return redirect('ofertas', pk=publicacion.get().pk)
 
 def cancelar_intercambio(request, id):
     intercambio = Intercambio.objects.filter(id_publicacion=id).exclude(estado='Cancelado')
@@ -329,6 +329,21 @@ def confirmar_intercambio(request, id):
     oferta.update(finalizada=True)
     intercambio.update(estado="confirmado")
     return redirect('welcome')
+
+def registrar_producto(request):
+    context = {}
+    if request.method == "POST":
+        context["forms"] = DonacionProductoForm(request.POST)
+        # Si escribis un espacio en blanco, no lo guarda por que no es valido
+        if context["forms"].is_valid():
+            donacion_producto = context["forms"].save(commit=False)
+            if (request.POST["dni_donante"] != ''):
+                donador = Usuario.objects.filter(dni=request.POST["dni_donante"])
+                if (donador.exists()):
+                    donacion_producto.donante = donador.get()
+            donacion_producto.save()
+    context["forms"] = DonacionProductoForm()
+    return render(request, 'registrar_producto.html', context)
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
