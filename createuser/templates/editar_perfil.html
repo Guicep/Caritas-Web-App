@@ -1,0 +1,58 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <h5 class="card-header" style="background-color: #82d8bf; color: #174216;">Editar Perfil</h5>
+                <div class="card-body" style="background-color: #f0f0f0;">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_correo">Correo:</label>
+                            <input type="email" id="id_correo" name="correo" class="form-control" value="{{ form.correo.value }}" required>
+                            {% if form.correo.errors %}
+                            <div class="invalid-feedback d-block">{{ form.correo.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_nombre">Nombre:</label>
+                            <input type="text" id="id_nombre" name="nombre" class="form-control" value="{{ form.nombre.value }}" required>
+                            {% if form.nombre.errors %}
+                            <div class="invalid-feedback d-block">{{ form.nombre.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_apellido">Apellido:</label>
+                            <input type="text" id="id_apellido" name="apellido" class="form-control" value="{{ form.apellido.value }}" required>
+                            {% if form.apellido.errors %}
+                            <div class="invalid-feedback d-block">{{ form.apellido.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_nacimiento">Fecha de Nacimiento:</label>
+                            <input type="date" id="id_nacimiento" name="nacimiento" class="form-control" value="{{ form.nacimiento.value|date:'Y-m-d' }}" min="1950-01-01" max="2006-12-31" required>
+                            {% if form.nacimiento.errors %}
+                            <div class="invalid-feedback d-block">{{ form.nacimiento.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_dni">DNI:</label>
+                            <input type="text" id="id_dni" name="dni" class="form-control" value="{{ form.dni.value }}" required>
+                            {% if form.dni.errors %}
+                            <div class="invalid-feedback d-block">{{ form.dni.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-custom btn-block" style="background-color: #82d8bf; border-color: #82d8bf;">Guardar Cambios</button>
+                        <a href="{% url 'perfil' %}" class="btn btn-secondary btn-block">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

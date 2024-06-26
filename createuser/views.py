@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm, DonacionProductoForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm, DonacionProductoForm, EditProfileForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -14,8 +14,7 @@ from django.shortcuts import render, get_object_or_404
 from django.db import connection
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.views.decorators.http import require_http_methods
-
+from django.contrib.auth import update_session_auth_hash
 from django.urls import reverse
 
 # Create your views here.
@@ -242,12 +241,18 @@ def guardar_oferta(request):
         tit = request.POST.get('titulo')
         cant = request.POST.get('cantidad')
         desc = request.POST.get('descripcion')
+        fec = request.POST.get('fecha')
+        hrs = request.POST.get('hora')
+        suc = request.POST.get('sucursal')
         Oferta.objects.create(
             id_publicacion = id_pu, 
             id_ofertante = id_of, 
             titulo = tit, 
             cantidad = cant, 
-            descripcion = desc, 
+            descripcion = desc,
+            fecha = fec,
+            hora = hrs, 
+            sucursal = suc,
             aceptada = False,
             finalizada = False,)
         # Lógica para guardar la oferta en la base de datos, por ejemplo:
@@ -258,6 +263,7 @@ def guardar_oferta(request):
     else:
         # Si se accede a la URL directamente, redirigir a alguna página
         return redirect("welcome")
+
     
 
 def oferta_aceptada(request):
@@ -288,6 +294,7 @@ def oferta_aceptada(request):
     return redirect("detalle_publicacion", pk=publicacion.get().pk)
 
 def oferta_rechazada(request):
+    motivo = request.POST.get('motivo')
     oferta = Oferta.objects.filter(pk=request.POST.get("oferta_id"))
     publicacion = Publicacion.objects.filter(pk=oferta.get().id_publicacion)
     publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
@@ -295,7 +302,8 @@ def oferta_rechazada(request):
     send_mail(
         "Aviso de oferta cancelada",
         "Su oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
-        " de "+publicante.get().apellido+" "+publicante.get().nombre +" fue rechazada",
+        " de "+publicante.get().apellido+" "+publicante.get().nombre +" fue rechazada"+
+        " por el motivo: "+motivo,
         "settings.EMAIL_HOST_USER",
         [ofertante.get().correo],
     )
@@ -484,3 +492,19 @@ def registrar_tarjeta(request):
         form = TarjetaForm()
     return render(request, 'registrar_tarjeta.html', {'form': form})
 
+@login_required
+def perfil(request):
+    usuario = request.user
+    return render(request, 'perfil.html', {'usuario': usuario})
+
+
+@login_required
+def editar_perfil(request):
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('perfil')
+    else:
+        form = EditProfileForm(instance=request.user)
+    return render(request, 'editar_perfil.html', {'form': form})

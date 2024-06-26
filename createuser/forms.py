@@ -1,6 +1,11 @@
 from django import forms
 from .models import Usuario, Publicacion, Comentario, Intercambio, Tarjeta, DonacionProducto
 from django.forms import TextInput
+from django.core.exceptions import ValidationError
+from datetime import date
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import authenticate
 
 class UsuarioForm(forms.ModelForm):
     # Configuracion de los inputs como en html
@@ -137,3 +142,27 @@ class DonacionProductoForm(forms.ModelForm):
         model = DonacionProducto
         fields = ['nombre_producto', 'cantidad', 'nombre_donante', 'apellido_donante']
 
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['correo', 'nombre', 'apellido', 'nacimiento', 'dni']
+        widgets = {
+            'nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
+
+        
+
+    def clean_correo(self):
+        correo = self.cleaned_data.get('correo')
+        if Usuario.objects.filter(correo=correo).exists() and self.instance.correo != correo:
+            raise forms.ValidationError("Este correo ya está en uso.")
+        return correo
+    
+    def clean_nacimiento(self):
+        nacimiento = self.cleaned_data.get('nacimiento')
+        if nacimiento:
+            if nacimiento < date(1950, 1, 1) or nacimiento > date(2006, 12, 31):
+                raise ValidationError("La fecha de nacimiento debe estar entre 01/01/1950 y 31/12/2006.")
+        return nacimiento
+    

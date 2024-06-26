@@ -1,0 +1,85 @@
+<div id="cuadro-confirmar" style="display: none;">
+    <h2>Confirmar Intercambio</h2>
+    <form method="post" action="{% url 'confirmar_intercambio' item.id %}">
+        {% csrf_token %}
+        <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{ item.id }}">
+        <!-- Otros campos para la oferta si es necesario -->
+        <button type="submit" class="btn btn-primary">Aceptar</button>
+        <a href="#" class="btn btn-secondary" onclick="ocultarConfirmar()">Cancelar</a>
+    </form>
+</div>
+
+
+<style>
+    #cuadro-confirmar{
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f0f8ff; /* Verde agua */
+        padding: 20px;
+        border: 2px solid #90ee90; /* Verde lima */
+        border-radius: 10px;
+        z-index: 1000;
+    }
+
+    #cuadro-confirmar h2{
+        color: #000; /* Negro */
+        margin-bottom: 10px;
+    }
+
+    #cuadro-confirmar label {
+        color: #000; /* Negro */
+        margin-bottom: 10px;
+    }
+
+    #cuadro-confirmar input[type="text"], #cuadro-confirmar input[type="number"], #cuadro-confirmar textarea
+    {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    #cuadro-confirmar button, #cuadro-confirmar a {
+        padding: 10px 20px;
+        margin-top: 10px;
+        border-radius: 5px;
+        color: #fff; /* Blanco */
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block; /* Hacer que los botones se alineen horizontalmente */
+        vertical-align: middle; /* Alinear verticalmente respecto al contenedor */
+    }
+
+    #cuadro-confirmar button {
+        background-color: #90ee90; /* Verde lima */
+        border: none;
+        margin-right: 10px; /* Espacio entre los botones */
+    }
+
+    #cuadro-confirmar button:hover {
+        background-color: #7cfc00; /* Verde lima más oscuro al pasar el cursor */
+    }
+
+    #cuadro-confirmar a{
+        background-color: #ff6347; /* Rojo coral */
+    }
+
+    #cuadro-confirmar a:hover {
+        background-color: #ff4500; /* Rojo naranja al pasar el cursor */
+    }
+</style>
+
+<script>
+    function mostrarConfirmar() {
+        document.getElementById('cuadro-confirmar').style.display = 'block';
+    }
+
+    function ocultarConfirmar() {
+        document.getElementById('cuadro-confirmar').style.display = 'none';
+    }
+</script>

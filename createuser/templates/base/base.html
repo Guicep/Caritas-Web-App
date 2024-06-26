@@ -8,6 +8,7 @@
         {% block title %}
         {% endblock %}
     </title>
+    
     <!-- Cargar Bootstrap CSS desde un CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
@@ -17,51 +18,102 @@
     <!-- Tu estilo personalizado -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
     <link rel="icon" href="{% static '/images/Logo.png' %}">
+
+    <!-- Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        /* Estilos adicionales */
+        .navbar .navbar-nav .nav-link {
+            color: #010f03; /* Color de los enlaces del navbar */
+        }
+        .navbar .navbar-nav .nav-link:hover {
+            color: #09f510; /* Color cuando se pasa el mouse sobre los enlaces del navbar */
+        }
+        .navbar .navbar-nav .nav-item {
+            margin-right: 10px; /* Espaciado entre los elementos del navbar */
+        }
+        .navbar .navbar-nav .nav-item:last-child {
+            margin-right: 0; /* Elimina el margen derecho del último elemento del navbar */
+        }
+        .navbar .profile-icon {
+            color: #01ff1ad2; /* Color del icono de perfil */
+            font-size: 3rem; /* Tamaño del icono de perfil ajustado a 2rem */
+            cursor: pointer; /* Cambia el cursor al pasar sobre el icono de perfil */
+        }
+        .navbar .profile-icon:hover {
+            color: #09e211; /* Cambia el color al pasar el cursor sobre el icono de perfil */
+        }
+    </style>
 </head>
 <body id="background-color">
 <nav class="navbar navbar-expand-lg navbar-light bg-custom">
     <img src="{% static 'images/Nombre.png' %}" alt="HopeTrade" id="titlelogo">
-    <div>
-        <ul class="navbar-nav">            
-          <li><a class="nav-link" href="{% url 'welcome' %}">Inicio</a></li>
-          <li><a class="nav-link" href="">Contacto</a></li>
-          {% if request.user.is_authenticated and not request.user.is_superuser%}
-          
-            <li><a class="nav-link" href="{% url 'publish' %}">Publicar producto</a></li>
-            <li><a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a></li>
-            <li><a class="nav-link" href="{% url 'historial' %}">Historial de intercambios</a></li>
-
-          {% endif %}
-          {% if request.user.is_superuser %}
-            <li><a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a></li>
-            <li><a class="nav-link" href="{% url 'userlist' %}">Mostrar Usuarios</a></li>
-          {% endif %}
-          {% if request.user.is_staff and not request.user.is_superuser %}
-          <li><a class="nav-link" href="{% url 'listar_intercambios' %}">Listar Codigos intercambios</a></li>
-          {% endif %}
-          {% if request.user.is_staff%}
-          <li>
-              <div class="dropdown">
-              <a class="btn dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Donaciones
-              </a>
-
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <a class="dropdown-item" href="{% url 'listar_donaciones' %}">Listar Donaciones</a>
-                <a class="dropdown-item" href="#">Donacion en Efectivo</a>
-                <a class="dropdown-item" href="#">Donacion con Tarjeta</a>
-                <a class="dropdown-item" href="{% url 'registrar_producto' %}">Registrar Producto</a>
-              </div>
-              </div>
-          </li>
-          {% endif %}
-          {% if request.user.is_authenticated %}
-            <li><a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesion</a></li>
-          {% endif %}
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'welcome' %}">Inicio</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Contacto</a>
+            </li>
+            {% if request.user.is_authenticated and not request.user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'publish' %}">Publicar producto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'ver_publicaciones' %}">Mis publicaciones</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'historial' %}">Historial de intercambios</a>
+                </li>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'staffregister' %}">Registrar Ayudante</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'userlist' %}">Mostrar Usuarios</a>
+                </li>
+            {% endif %}
+            {% if request.user.is_staff and not request.user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'listar_intercambios' %}">Listar Codigos intercambios</a>
+                </li>
+            {% endif %}
+            {% if request.user.is_staff %}
+                <li class="nav-item">
+                    <div class="dropdown">
+                        <a class="btn dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Donaciones
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'listar_donaciones' %}">Listar Donaciones</a>
+                            <a class="dropdown-item" href="#">Donacion en Efectivo</a>
+                            <a class="dropdown-item" href="#">Donacion con Tarjeta</a>
+                            <a class="dropdown-item" href="{% url 'registrar_producto' %}">Registrar Producto</a>
+                        </div>
+                    </div>
+                </li>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" onclick="return confirm('Esta seguro?')" href="{% url 'mylogout' %}">Cerrar sesión</a>
+                </li>
+            {% endif %}
         </ul>
+        {% if request.user.is_authenticated %}
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link profile-icon" href="{% url 'perfil' %}"><i class="fas fa-user-circle"></i></a>
+            </li>
+        </ul>
+        {% endif %}
     </div>
 </nav>
-<div class="container">{% block content %} {% endblock %}</div>
+<div class="container">
+    {% block content %} {% endblock %}
+</div>
 
 <!-- Cargar Bootstrap JS desde un CDN (al final del body) -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
@@ -69,4 +121,3 @@
 {% block script %}{% endblock %}
 </body>
 </html>
-

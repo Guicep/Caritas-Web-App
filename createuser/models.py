@@ -92,8 +92,12 @@ class Oferta(models.Model):
     titulo = models.CharField(max_length=100)
     cantidad = models.IntegerField(default=0)
     descripcion = models.CharField(max_length=200)
+    fecha = models.DateField()
+    hora = models.TimeField()
+    sucursal = models.CharField(max_length=100)
     aceptada = models.BooleanField()
     finalizada = models.BooleanField()
+
 
 class Tarjeta(models.Model):
     id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='tarjeta')

@@ -1,25 +1,44 @@
 <!-- Cuadro de diálogo para la oferta -->
 <div id="cuadro-oferta" style="display: none;">
-   <h2>Ofertar</h2>
-   <form method="post" action="{% url 'guardar_oferta' %}">
-       {% csrf_token %}
-       <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{item.id}}">
-       <input type="hidden" id="id_ofertante" name="id_ofertante" value="{{request.user.id}}">
-       <label for="titulo">Título:</label>
-       <input type="text" id="titulo" name="titulo" required="True">
-       <br>
+    <h2>Ofertar</h2>
+    <form method="post" action="{% url 'guardar_oferta' %}" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{item.id}}">
+        <input type="hidden" id="id_ofertante" name="id_ofertante" value="{{request.user.id}}">
+        
+        <label for="titulo">Título:</label>
+        <input type="text" id="titulo" name="titulo" required="True">
+        <br>
         <label for="cantidad">Cantidad:</label>
         <input type="number" id="cantidad" name="cantidad" min="0" required="True">
         <br>
-       <label for="descripcion">Descripción:</label>
+        <label for="descripcion">Descripción:</label>
         <textarea id="descripcion" name="descripcion" required="True"></textarea>
         <br>
-
-       <!-- Otros campos para la oferta -->
-       <button type="submit" class="btn btn-primary">Aceptar</button>
-       <a href="#" class="btn btn-secondary" onclick="ocultarOferta()">Cancelar</a>
-   </form>
+        
+        <label for="fecha">Fecha de Oferta:</label>
+        <input type="date" id="fecha" name="fecha" required="True" onchange="validateDate()">
+        <br>
+    
+        <label for="hora">Hora de Oferta:</label>
+        <input type="time" id="hora" name="hora" required="True" onchange="validateTime()">
+        <br>
+    
+        <label for="sucursal">Sucursal:</label>
+        <select id="sucursal" name="sucursal" required="True">
+            <option value="" disabled selected>Seleccione Sucursal</option>
+            <option value="Berazategui">Berazategui</option>
+            <option value="Plaza Italia">Plaza Italia</option>
+            <option value="Plaza Moreno">Plaza Moreno</option>
+        </select>
+    
+        <button type="submit" class="btn btn-primary">Aceptar</button>
+        <a href="#" class="btn btn-secondary" onclick="ocultarOferta()">Cancelar</a>
+    </form>
+    
 </div>
+
+
 
 
 <style>
@@ -98,4 +117,67 @@
    function ocultarOferta() {
        document.getElementById('cuadro-oferta').style.display = 'none';
    }
+
+   function validateDate() {
+    const dateInput = document.getElementById('fecha');
+    const selectedDate = new Date(dateInput.value);
+    const currentDate = new Date();
+
+    // Clear time part of currentDate
+    currentDate.setHours(0, 0, 0, 0);
+
+    const day = selectedDate.getUTCDay();
+    const timeDifference = selectedDate - currentDate;
+    const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+    // Check if the selected day is Sunday (0) or Saturday (6)
+    if (day === 0 || day === 6) {
+        alert('Por favor, seleccione una fecha entre lunes y viernes.');
+        dateInput.value = ''; // Clear the invalid date
+        return;
+    }
+
+    // Check if the selected date is the same as the current date or within two days
+    if (daysDifference < 2) {
+        alert('Por favor, seleccione una fecha que sea al menos dos días después de la fecha actual.');
+        dateInput.value = ''; // Clear the invalid date
+        return;
+    }
+
+    // Check if the selected date is more than 20 days from the current date
+    if (daysDifference > 20) {
+        alert('Por favor, seleccione una fecha que no sea más de veinte días después de la fecha actual.');
+        dateInput.value = ''; // Clear the invalid date
+        return;
+    }
+}
+
+
+
+   function validateTime() {
+        const timeInput = document.getElementById('hora');
+        const selectedTime = timeInput.value;
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+
+        // Check if the time is within the allowed range
+        if (hours < 10 || (hours === 18 && minutes > 0) || hours > 18) {
+            alert('Por favor, seleccione una hora entre las 10:00 AM y las 6:00 PM.');
+            timeInput.value = ''; // Clear the invalid time
+        }
+    }
+
+    function validateForm() {
+    const sucursalSelect = document.getElementById('sucursal');
+    const selectedSucursal = sucursalSelect.value;
+
+    if (selectedSucursal === "") {
+        alert('Por favor, seleccione una sucursal válida.');
+        return false; // Evita el envío del formulario
+    }
+
+    // Otras validaciones aquí...
+
+    return true; // Permite el envío del formulario si todo es válido
+}
+
 </script>

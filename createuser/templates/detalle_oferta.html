@@ -5,29 +5,80 @@
 {% block content %}
 
     <ul class="list-group">
-    <li class="list-group-item">{{item.titulo}}</li>
-    <li class="list-group-item">{{item.cantidad}}</li>
-    <li class="list-group-item">{{item.descripcion}}</li>
+        <li class="list-group-item">{{ item.titulo }}</li>
+        <li class="list-group-item">{{ item.cantidad }}</li>
+        <li class="list-group-item">{{ item.descripcion }}</li>
+        <li class="list-group-item">{{ item.fecha }}</li>
+        <li class="list-group-item">{{ item.hora }}</li>
+        <li class="list-group-item">{{ item.sucursal }}</li>
     </ul>
-    <form id="aceptar" method = "POST" action="{% url 'oferta_aceptada' %}">
-    {% csrf_token %}
-    <input name="oferta_id" type="hidden" value={{item.id}}>
+
+    <form id="aceptar" method="POST" action="{% url 'oferta_aceptada' %}">
+        {% csrf_token %}
+        <input name="oferta_id" type="hidden" value="{{ item.id }}">
     </form>
 
-    
-    <form id="rechazar" method = "POST" action="{% url 'oferta_rechazada' %}">
-    {% csrf_token %}
-    <input name="oferta_id" type="hidden" value={{item.id}}>
+    <form id="rechazar" method="POST" action="{% url 'oferta_rechazada' %}">
+        {% csrf_token %}
+        <input name="oferta_id" type="hidden" value="{{ item.id }}">
+        <input id="rechazo-motivo" name="motivo" type="hidden" value="">
     </form>
 
-    <button type="submit" name="oferta_id" id="ace" class="btn btn-primary" value={{item.id}}>Aceptar</button>
-    <button type="submit" name="oferta_id" id="rec" class="btn btn-primary" value={{item.id}}>Rechazar</button>
+    <button type="submit" name="oferta_id" id="ace" class="btn btn-primary" value="{{ item.id }}">Aceptar</button>
+    <button type="submit" name="oferta_id" id="rec" class="btn btn-primary" value="{{ item.id }}">Rechazar</button>
     
+    <!-- Ventana Modal -->
+    <div class="modal fade" id="rechazarModal" tabindex="-1" aria-labelledby="rechazarModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rechazarModalLabel">Motivo del Rechazo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="motivo" class="form-label">Motivo</label>
+                        <textarea class="form-control" id="motivo" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="confirm-rechazar" class="btn btn-primary">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('ace').addEventListener('click', () => document.getElementById('aceptar').submit());
-        document.getElementById('rec').addEventListener('click', () => document.getElementById('rechazar').submit());
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('ace').addEventListener('click', function() {
+                document.getElementById('aceptar').submit();
+            });
+
+            document.getElementById('rec').addEventListener('click', function() {
+                var modal = new bootstrap.Modal(document.getElementById('rechazarModal'));
+                modal.show();
+            });
+
+            document.getElementById('confirm-rechazar').addEventListener('click', function() {
+                var motivo = document.getElementById('motivo').value;
+                if (motivo.trim() !== "") {
+                    document.getElementById('rechazo-motivo').value = motivo;
+                    document.getElementById('rechazar').submit();
+                    var modalInstance = bootstrap.Modal.getInstance(document.getElementById('rechazarModal'));
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                } else {
+                    alert('Por favor, complete el motivo del rechazo.');
+                }
+            });
+
+            // Cerrar la ventana modal al hacer clic fuera de ella
+            var rechazarModal = new bootstrap.Modal(document.getElementById('rechazarModal'));
+            rechazarModal._element.addEventListener('hidden.bs.modal', function () {
+                document.getElementById('motivo').value = ""; // Limpiar el campo de motivo al cerrar la modal
+            });
+        });
     </script>
     
 {% endblock %}
-
-
