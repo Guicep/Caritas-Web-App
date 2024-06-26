@@ -497,7 +497,6 @@ def perfil(request):
     usuario = request.user
     return render(request, 'perfil.html', {'usuario': usuario})
 
-
 @login_required
 def editar_perfil(request):
     if request.method == 'POST':
@@ -508,3 +507,7 @@ def editar_perfil(request):
     else:
         form = EditProfileForm(instance=request.user)
     return render(request, 'editar_perfil.html', {'form': form})
+
+
+def cambiar_contraseña(request):
+    return

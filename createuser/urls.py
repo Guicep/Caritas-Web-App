@@ -29,4 +29,5 @@ urlpatterns = [
     path('registrar_producto/', views.registrar_producto, name='registrar_producto'),
     path('perfil/', views.perfil, name='perfil'),
     path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
+    path('cambiar_contraseña/', views.cambiar_contraseña, name='cambiar_contraseña'),
 ]
