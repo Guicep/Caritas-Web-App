@@ -9,7 +9,7 @@
                 <button class="btn btn-danger float-right" onclick="mostrarCancelar()">
                     Cancelar
                 </button>
-                {% include 'cancelar_int.html' with id=item.id %}
+                {% include 'cancelar_int.html' with id=item.id_publicacion %}
                 <a class="btn btn-primary float-right" onclick="return confirm('Esta seguro?')" href="{% url 'confirmar_intercambio' item.id %}">Confirmar</a>
             <br>
             </li>

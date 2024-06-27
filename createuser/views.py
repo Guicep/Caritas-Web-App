@@ -220,7 +220,7 @@ def borrar(request,pk):
     return redirect('ver_publicaciones')
 
 def ver_publicaciones(request):
-    mis_publicaciones=Publicacion.objects.filter(id_usuario=request.user.id)
+    mis_publicaciones=Publicacion.objects.filter(id_usuario=request.user.id).exclude(finalizada=True)
     data = {
         'item':mis_publicaciones
     }
@@ -287,7 +287,7 @@ def oferta_aceptada(request):
             "La oferta "+oferta.get().titulo+" en la publicación "+publicacion.get().titulo+
             " de "+publicante.get().apellido+" "+publicante.get().nombre +" a sido aceptada!\n\n"+
             "Su intercambio se realizara el dia "+resultado.get().fecha_acordada.strftime('%d/%m/%Y')+" con el codigo: "+
-            resultado.get().codigo_intercambio+" en la filial de La Plata",
+            resultado.get().codigo_intercambio+" en la filial de "+oferta.get().sucursal,
             "settings.EMAIL_HOST_USER",
             [publicante.get().correo, ofertante.get().correo],
         )
@@ -314,15 +314,18 @@ def cancelar_intercambio(request, id):
     intercambio = Intercambio.objects.filter(id_publicacion=id).exclude(estado='Cancelado')
     publicacion = Publicacion.objects.filter(pk=id)
     oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
+    publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
+    ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
     intercambio.update(motivo_cancelacion=request.POST.get('motivo'))
-    intercambio.update(estado="Cancelado")
     publicacion.update(oculto=False)
     oferta.update(finalizada=True)
-    #send_mail(
-    #    context["codigo"] + "Intercambio cancelado",
-    #    "El intercambio con codigo: " + context["codigo"] + "a sido cancelado por: " + context["motivo_cancelacion"], 
-    #    "settings.EMAIL_HOST_USER", 
-    #    context["emails"])
+    send_mail(
+        "Intercambio "+intercambio.get().codigo_intercambio+" cancelado",
+        "El intercambio con codigo: " + intercambio.get().codigo_intercambio
+        +" a sido cancelado por:\n\n" + intercambio.get().motivo_cancelacion, 
+        "settings.EMAIL_HOST_USER", 
+        [publicante.get().correo, ofertante.get().correo])
+    intercambio.update(estado="Cancelado")
     return redirect('welcome')
 
 def confirmar_intercambio(request, id):
@@ -331,11 +334,20 @@ def confirmar_intercambio(request, id):
     
     # Actualizar estado de oferta y publicación
     oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
-    
     publicacion = Publicacion.objects.filter(pk=intercambio.get().id_publicacion)
+    ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
+    publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
+    send_mail(
+        "Intercambio "+intercambio.get().codigo_intercambio+" confirmado!",
+        "El intercambio con codigo: " + intercambio.get().codigo_intercambio
+        +" a sido confirmado! gracias por utilizar nuestro servicio\n"
+        +"Dejale una puntuacion al usuario de como fue la experiencia del intercambio el el siguiente link!\n"
+        +"aca va el link, si tuviera uno", 
+        "settings.EMAIL_HOST_USER", 
+        [publicante.get().correo, ofertante.get().correo])
     publicacion.update(finalizada=True)
     oferta.update(finalizada=True)
-    intercambio.update(estado="confirmado")
+    intercambio.update(estado="Confirmado")
     return redirect('welcome')
 
 def registrar_producto(request):
@@ -415,7 +427,6 @@ def ver_historial(request):
     for index in idsp:
         lista.append(Publicacion.objects.filter(id=index).values_list('titulo', flat=True))
     result_list = list(chain(*lista ))
-    print(result_list)
     o = Oferta.objects.filter(id__in=idso).values_list('titulo', flat=True)
     intercambios2= Intercambio.objects.filter(id__in=ids_ofertas_enviadas_aceptadas)
 
@@ -425,7 +436,6 @@ def ver_historial(request):
     for index in ids_p_e:
         lista2.append(Publicacion.objects.filter(id=index).values_list('titulo', flat=True))
     result_list2 = list(chain(*lista2))
-    print(ids_p_e)
     n= Publicacion.objects.filter(id__in=ids_p_e).values_list('titulo',flat=True)
     #lista_sin_parentesis = [tupla[0] for tupla in results]
     mis=list(chain( result_list,nom_oe))

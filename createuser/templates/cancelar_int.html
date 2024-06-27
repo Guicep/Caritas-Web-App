@@ -1,8 +1,12 @@
 <div id="cuadro-oferta" style="display: none;">
+    {% if not id %}
     <form method="post" action="{% url 'cancelar_intercambio' item.id %}">
+    {% else %}
+    <form method="post" action="{% url 'cancelar_intercambio' id %}">
+    {%endif%}
         {% csrf_token %}
         <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{item.id}}">
-        <label for="motivo">Movivo de cancelacion:</label>
+        <label for="motivo">Movivo de cancelacion: </label>
         <input type="text" id="motivo" name="motivo" required="True">
         <!-- Otros campos para la oferta -->
         <button type="submit" class="btn btn-primary">Aceptar</button>
