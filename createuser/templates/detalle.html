@@ -55,9 +55,9 @@
                             <button class="btn btn-sm btn-warning editar-comentario-btn" data-id="{{ comentario.id }}">Editar</button>
                         {% endif %}
                         {% if request.user == comentario.usuario or item.id_usuario == request.user.id and not comentario.respondido %}
-                            <form action="{% url 'eliminar_comentario' comentario.id %}" method="post" class="delete-comment-form" style="display: inline;">
+                            <form action="{% url 'eliminar_comentario' comentario.id %}" method="post" style="display: inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                <button type="submit" class="btn btn-sm btn-danger delete-comment-btn" data-id="{{ comentario.id }}">Eliminar</button>
                             </form>
                         {% endif %}
                     {% endif %}
@@ -76,9 +76,9 @@
                                     <button class="btn btn-sm btn-warning editar-comentario-btn" data-id="{{ comentario.id }}">Editar</button>
                                 {% endif %}
                                 {% if request.user == comentario.usuario or item.id_usuario == request.user.id and not comentario.respondido %}
-                                    <form action="{% url 'eliminar_comentario' comentario.id %}" method="post" class="delete-comment-form" style="display: inline;">
+                                    <form action="{% url 'eliminar_comentario' comentario.id %}" method="post" style="display: inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                        <button type="submit" class="btn btn-sm btn-danger delete-comment-btn" data-id="{{ comentario.id }}">Eliminar</button>
                                     </form>
                                 {% endif %}
                             {% endif %}
@@ -168,47 +168,78 @@
         </div>
     </div>
 
-    <!-- Modal de éxito para eliminación de comentarios -->
-    <div class="modal fade" id="deleteSuccessModal" tabindex="-1" role="dialog" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
+    <!-- Modal para editar comentario -->
+    <div class="modal fade" id="editarComentarioModal" tabindex="-1" role="dialog" aria-labelledby="editarComentarioModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteSuccessModalLabel">Comentario eliminado</h5>
+                    <h5 class="modal-title" id="editarComentarioModalLabel">Editar Comentario</h5>
                 </div>
-                <div class="modal-body">
-                    <p>Su comentario ha sido eliminado con éxito.</p>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+                <div class="modal-body" id="editar-comentario-modal-body">
+                    <!-- El contenido del formulario de edición se cargará aquí -->
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal de éxito para eliminar comentario -->
+    <div class="modal fade" id="deleteSuccessModal" tabindex="-1" role="dialog" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteSuccessModalLabel">Comentario eliminado</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>El comentario ha sido eliminado con éxito.</p>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block script %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Mostrar u ocultar la sección de comentarios
-        const toggleComentarios = document.getElementById('toggleComentarios');
-        const comentariosDiv = document.getElementById('comentarios');
-        toggleComentarios.addEventListener('click', function() {
+        var toggleComentariosBtn = document.getElementById('toggleComentarios');
+        var comentariosDiv = document.getElementById('comentarios');
+
+        // Restaurar el estado de los comentarios (mostrar/ocultar) al cargar la página
+        if (sessionStorage.getItem('mostrarComentarios') === 'true') {
+            comentariosDiv.style.display = 'block';
+            toggleComentariosBtn.textContent = 'Ocultar Comentarios';
+        } else {
+            comentariosDiv.style.display = 'none';
+            toggleComentariosBtn.textContent = 'Mostrar Comentarios';
+        }
+
+        toggleComentariosBtn.addEventListener('click', function() {
             if (comentariosDiv.style.display === 'none') {
                 comentariosDiv.style.display = 'block';
-                toggleComentarios.textContent = 'Ocultar Comentarios';
+                toggleComentariosBtn.textContent = 'Ocultar Comentarios';
+                sessionStorage.setItem('mostrarComentarios', true);
             } else {
                 comentariosDiv.style.display = 'none';
-                toggleComentarios.textContent = 'Mostrar Comentarios';
+                toggleComentariosBtn.textContent = 'Mostrar Comentarios';
+                sessionStorage.setItem('mostrarComentarios', false);
             }
         });
 
-        // Formulario de nuevo comentario
-        var newCommentForm = document.getElementById('new-comment-form');
-        newCommentForm.addEventListener('submit', function(e) {
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.removeItem('mostrarComentarios');
+        });
+
+        var commentForm = document.getElementById('new-comment-form');
+        commentForm.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            var formData = new FormData(commentForm);
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', newCommentForm.action, true);
+            xhr.open('POST', commentForm.action, true);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            var formData = new FormData(newCommentForm);
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     $('#ventanaEmergente').modal('hide');
@@ -220,33 +251,90 @@
             xhr.send(formData);
         });
 
-        // Formulario de eliminar comentario
-        var deleteForms = document.querySelectorAll('form.delete-comment-form');
-        deleteForms.forEach(function(form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+        $('#successModal').on('hidden.bs.modal', function () {
+            window.location.reload();
+        });
+
+        // Cargar el formulario de edición de comentario en el modal
+        document.querySelectorAll('.editar-comentario-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                var comentarioId = this.getAttribute('data-id');
                 var xhr = new XMLHttpRequest();
-                xhr.open('POST', form.action, true);
+                xhr.open('GET', '{% url "editar_comentario" 0 %}'.replace('0', comentarioId), true);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                var formData = new FormData(form);
                 xhr.onload = function() {
                     if (xhr.status === 200) {
-                        $('#deleteSuccessModal').modal('show');
+                        var response = JSON.parse(xhr.responseText);
+                        document.getElementById('editar-comentario-modal-body').innerHTML = response.html;
+                        $('#editarComentarioModal').modal('show');
+                        bindEditFormSubmit(); // Llamar a la función para vincular el evento de envío del formulario
                     } else {
-                        alert('Error al eliminar el comentario.');
+                        alert('Error al cargar el formulario de edición.');
+                    }
+                };
+                xhr.send();
+            });
+        });
+
+        // Función para vincular el envío del formulario de edición de comentario
+        function bindEditFormSubmit() {
+            var editCommentForm = document.getElementById('editar-comentario-form');
+            editCommentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(editCommentForm);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', editCommentForm.action, true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            $('#editarComentarioModal').modal('hide');
+                            $('#editarSuccessModal').modal('show');
+                        } else {
+                            alert('Error al guardar los cambios.');
+                        }
+                    } else {
+                        alert('Error al guardar los cambios.');
                     }
                 };
                 xhr.send(formData);
             });
+        }
+
+        $('#editarSuccessModal').on('hidden.bs.modal', function () {
+            window.location.reload();
         });
 
-        // Recargar página al cerrar modales de éxito
-        $('#successModal, #editarSuccessModal, #deleteSuccessModal').on('hidden.bs.modal', function () {
-            window.location.reload();
+        // JavaScript para manejar la eliminación de comentarios y mostrar el modal de éxito
+        var deleteButtons = document.querySelectorAll('.delete-comment-btn');
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var comentarioId = this.getAttribute('data-id');
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '{% url "eliminar_comentario" 0 %}'.replace('0', comentarioId), true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        $('#deleteSuccessModal').modal('show'); // Mostrar el modal de éxito para eliminación
+                        // Puedes agregar aquí cualquier otra acción después de la eliminación
+                    } else {
+                        alert('Error al eliminar el comentario.');
+                    }
+                };
+                xhr.send();
+            });
         });
     });
 </script>
 {% endblock %}
+
+
+
+
+
+
+
 
 
 
