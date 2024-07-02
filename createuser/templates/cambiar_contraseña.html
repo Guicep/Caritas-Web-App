@@ -1,0 +1,25 @@
+{% extends "base/base.html" %}{% block title %}Cambio de contraseña{% endblock %}
+{% load static %}
+{% block content %}
+{% if mensaje %}
+<div class="list-group-item">
+    <b>{{ mensaje }}</b>
+</div>
+{% endif %}
+<div class="centered">
+    <form method="POST" action="{% url 'cambiar_contraseña' %}">
+        {% csrf_token %}
+        <b>Cambio de contraseña</b><br><br>
+        {% for field in forms %}
+            {% if field.field.widget.attrs.name == 'optional' and request.user.is_authenticated %}
+                {{ field|linebreaks }}
+            {% endif %}
+            {% if not field.field.widget.attrs.name == 'optional' %}
+                {{ field|linebreaks }}
+            {% endif %}
+        {% endfor %}
+        <input type="hidden" value={{correo}} name="correo" >
+        <button class="btn btn-primary float" type="submit">Aceptar</button>
+    </form>
+</div>
+{% endblock %}

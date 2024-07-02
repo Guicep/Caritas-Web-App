@@ -115,6 +115,15 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='CodigosRecuperacion',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('codigo', models.CharField(max_length=6)),
+                ('vencido', models.BooleanField()),
+                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
             name='DonacionProducto',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),

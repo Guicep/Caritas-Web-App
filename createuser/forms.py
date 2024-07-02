@@ -138,7 +138,7 @@ class DonacionProductoForm(forms.ModelForm):
     cantidad = forms.IntegerField(widget=textInput_cantidad, label='')
     nombre_donante = forms.CharField(widget=textInput_donante_nombre, label='')
     apellido_donante = forms.CharField(widget=textInput_donante_apellido, label='')
-    dni_donante = forms.IntegerField(widget=textInput_dni_apellido, required=False, label='')
+    dni_donante = forms.IntegerField(widget=textInput_dni_apellido, label='')
 
     class Meta:
         model = DonacionProducto
@@ -211,3 +211,23 @@ class DonacionEfectivoForm(forms.ModelForm):
     class Meta:
         model = DonacionEfectivo
         fields = ['dni', 'monto']
+    
+class RestablecerContraseñaForm(forms.Form):
+    # Configuracion de los inputs como en html
+    textInput_correo = TextInput(attrs={"placeholder" : "Correo"})
+    # Asignacion de la configuracion
+    correo = forms.EmailField(widget=textInput_correo, label='')
+
+class IngresarCodigoForm(forms.Form):
+    # Configuracion de los inputs como en html
+    textInput_codigo = TextInput(attrs={"placeholder": "Codigo", "maxlength": 8})
+    # Asignacion de la configuracion
+    codigo = forms.CharField(widget=textInput_codigo, label='')
+
+class CambiarContraseñaForm(forms.Form):
+    textInputOptPassword = TextInput(attrs={"type" : "password", 'name': 'optional', "placeholder": "Contraseña actual", "maxlength" : 30})
+    textInputNewPassword = TextInput(attrs={"type" : "password", 'name': '', "placeholder": "Contraseña nueva", "maxlength" : 30})
+    textInputPassword = TextInput(attrs={"type" : "password", 'name': '', "placeholder": "Repita contraseña nueva", "maxlength" : 30})
+    contraseña_vieja = forms.CharField(widget=textInputOptPassword, label='')
+    contraseña_nueva = forms.CharField(widget=textInputNewPassword, label='')
+    contraseña_repetida = forms.CharField(widget=textInputPassword, label='')
