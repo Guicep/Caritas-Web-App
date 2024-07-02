@@ -115,6 +115,7 @@ class DonacionProducto(models.Model):
     apellido_donante = models.CharField(max_length=100)
     # Se buscar en usuarios si esta registrado, si no este campo puede quedar blanco
     donante = models.ForeignKey(Usuario, on_delete=models.CASCADE, blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
 
 
 class DonacionTarjeta(models.Model):

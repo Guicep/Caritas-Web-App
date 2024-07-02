@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, Tarjeta
+from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, Tarjeta,DonacionProducto,DonacionEfectivo,DonacionTarjeta
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm, DonacionProductoForm, EditProfileForm, DonacionTarjetaForm, DonacionEfectivoForm
@@ -581,4 +581,14 @@ def registrar_donacion_efectivo(request):
     }
     return render(request, 'registrar_donacion_efectivo.html', contexto)
 
-
+def listar_donaciones(request):
+    donaciones_productos = DonacionProducto.objects.all()
+    donaciones_tarjeta = DonacionTarjeta.objects.all()
+    donaciones_efectivo = DonacionEfectivo.objects.all()
+    
+    context = {
+        'donaciones_productos': donaciones_productos,
+        'donaciones_tarjeta': donaciones_tarjeta,
+        'donaciones_efectivo': donaciones_efectivo,
+    }
+    return render(request, 'listar_donaciones.html', context)
