@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario
-from datetime import date
+from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, Tarjeta
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm, DonacionProductoForm, EditProfileForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm, DonacionProductoForm, EditProfileForm, DonacionTarjetaForm, DonacionEfectivoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -493,14 +493,29 @@ def listar_donaciones(request):
     return render(request, "listar_donaciones.html")
 
 def registrar_tarjeta(request):
+    mensaje = ''
+    form = TarjetaForm()
     if request.method == "POST":
         form = TarjetaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("welcome")
-    else:
-        form = TarjetaForm()
-    return render(request, 'registrar_tarjeta.html', {'form': form})
+        numero_fechaactual = int(datetime.now().strftime("%Y-%m-%d").replace('-', ''))
+        numero_validez = int(request.POST["validez"].replace('-', ''))
+        if (numero_fechaactual+1) > numero_validez:
+            mensaje = 'tarjeta expirada'
+        else:
+            if not Usuario.objects.filter(dni=request.POST["dni"]):
+                mensaje = 'no existe el DNI en el sistema'
+            else:
+                if Tarjeta.objects.filter(dni=request.POST["dni"]):
+                    mensaje = 'este DNI ya tiene una tarjeta asociada'
+                else:
+                    if form.is_valid():
+                        form.save()
+                        mensaje = 'Tarjeta registrada con exito'
+    contexto = {
+        'form': form,
+        'mensaje': mensaje
+    }
+    return render(request, 'registrar_tarjeta.html', contexto)
 
 @login_required
 def perfil(request):
@@ -521,3 +536,48 @@ def editar_perfil(request):
 
 def cambiar_contraseña(request):
     return
+
+
+def registrar_donacion_tarjeta(request):
+    mensaje = ''
+    form = DonacionTarjetaForm()
+    if request.method == "POST":
+        form = DonacionTarjetaForm(request.POST)
+        if not Tarjeta.objects.filter(numero=request.POST["numero"], cvc=request.POST["cvc"]):
+            mensaje = 'la tarjeta no existe o es incorrecta'
+        else:
+            saldo = Tarjeta.objects.filter(numero=request.POST["numero"]).values_list('monto',flat=True)[0]
+            monto_donacion = int(request.POST["monto"])
+            if saldo < monto_donacion:
+                mensaje = 'tarjeta sin saldo'
+            else:
+                saldo = saldo - monto_donacion
+                Tarjeta.objects.filter(numero=request.POST["numero"]).update(monto=saldo)
+                if form.is_valid():
+                    form.save()
+                    mensaje = 'Donacion registrada con exito'
+    contexto = {
+        'form': form,
+        'mensaje': mensaje
+    }
+    return render(request, 'registrar_donacion_tarjeta.html', contexto)
+
+
+def registrar_donacion_efectivo(request):
+    mensaje = ''
+    form = DonacionEfectivoForm()
+    if request.method == "POST":
+        form = DonacionEfectivoForm(request.POST)
+        if not Usuario.objects.filter(dni=request.POST["dni"]):
+            mensaje = 'no existe el DNI en el sistema'
+        else:
+            if form.is_valid():
+                form.save()
+                mensaje = 'Donacion registrada con exito'
+    contexto = {
+        'form': form,
+        'mensaje': mensaje
+    }
+    return render(request, 'registrar_donacion_efectivo.html', contexto)
+
+
