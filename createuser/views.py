@@ -480,13 +480,14 @@ def eliminar_comentario(request, comentario_id):
 
     # Verificar que el usuario actual sea el autor del comentario
     if request.user == comentario.usuario:
+        pk_actual=comentario.publicacion.pk
         comentario.delete()
         messages.success(request, 'El comentario ha sido eliminado correctamente.')
     else:
         messages.error(request, 'No tienes permiso para eliminar este comentario.')
 
     # Redirigir a la página de detalle de la publicación u otra página relevante
-    return redirect('detalle.html')
+    return redirect('detalle_publicacion', pk=pk_actual)
 
 
 def listar_donaciones(request):
