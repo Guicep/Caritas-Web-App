@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Publicacion, Comentario, Intercambio, Tarjeta, DonacionProducto
+from .models import Usuario, Publicacion, Comentario, Intercambio, Tarjeta, DonacionProducto, DonacionEfectivo, DonacionTarjeta
 from django.forms import TextInput
 from django.core.exceptions import ValidationError
 from datetime import date
@@ -104,24 +104,26 @@ class IntercambioForm(forms.ModelForm):
 
 class TarjetaForm(forms.ModelForm):
     # Configuracion de los inputs como en html
-    textInput_id_usuario = TextInput(attrs={"type": "number", "maxlength": 30})
+    textInputDNI = TextInput(attrs={"placeholder": "DNI", "maxlength": 8})
     textInput_numero = TextInput(attrs={"type": "number", "maxlength": 16})
     textInput_validez = TextInput(attrs={"type": "Date"})
     textInput_titular = TextInput(attrs={"type": "text", "maxlength": 150})
-    textInput_cvc = TextInput(attrs={"type": "number", "maxlength": 3})
+    textInput_cvc = TextInput(attrs={"type": "number", "maxlength": 4})
     textInput_tipo = (('Mastercard', 'Mastercard'), ('Visa', 'Visa'), ('AmericanExpres', 'AmericanExpres'))
+    textInput_monto = TextInput(attrs={"type": "number", "maxlength": 15})
 
     # Asignacion de la configuracion
-    id_usuario = forms.CharField(widget=textInput_id_usuario, label='id usuario')
+    dni = forms.CharField(widget=textInputDNI, label='Dni')
     numero = forms.CharField(widget=textInput_numero, label='numero de tarjeta')
     validez = forms.CharField(widget=textInput_validez, label='validez')
     titular = forms.CharField(widget=textInput_titular, label='titular')
     cvc = forms.CharField(widget=textInput_cvc, label='cvc')
     tipo = forms.ChoiceField(choices=textInput_tipo, initial='1')
+    monto = forms.CharField(widget=textInput_monto, label='monto')
 
     class Meta:
         model = Tarjeta
-        fields = ['id_usuario', 'numero', 'validez', 'titular', 'cvc', 'tipo']
+        fields = ['dni', 'numero', 'validez', 'titular', 'cvc', 'tipo', 'monto']
 
 class DonacionProductoForm(forms.ModelForm):
     # Configuracion de los inputs como en html
@@ -179,3 +181,33 @@ class EditProfileForm(forms.ModelForm):
         if Usuario.objects.filter(dni=dni).exists() and self.instance.dni != dni:
             raise forms.ValidationError("Este DNI ya está en uso.")
         return dni
+
+
+class DonacionTarjetaForm(forms.ModelForm):
+    # Configuracion de los inputs como en html
+    textInput_numero = TextInput(attrs={"type": "number", "maxlength": 16})
+    textInput_cvc = TextInput(attrs={"type": "number", "maxlength": 4})
+    textInput_monto = TextInput(attrs={"type": "number", "maxlength": 15})
+
+    # Asignacion de la configuracion
+    numero = forms.CharField(widget=textInput_numero, label='numero de tarjeta')
+    cvc = forms.CharField(widget=textInput_cvc, label='cvc')
+    monto = forms.CharField(widget=textInput_monto, label='monto')
+
+    class Meta:
+        model = DonacionTarjeta
+        fields = ['numero', 'cvc', 'monto']
+
+
+class DonacionEfectivoForm(forms.ModelForm):
+    # Configuracion de los inputs como en html
+    textInputDNI = TextInput(attrs={"placeholder": "DNI", "maxlength": 8})
+    textInput_monto = TextInput(attrs={"type": "number", "maxlength": 15})
+
+    # Asignacion de la configuracion
+    dni = forms.CharField(widget=textInputDNI, label='Dni')
+    monto = forms.CharField(widget=textInput_monto, label='monto')
+
+    class Meta:
+        model = DonacionEfectivo
+        fields = ['dni', 'monto']

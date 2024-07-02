@@ -100,12 +100,13 @@ class Oferta(models.Model):
 
 
 class Tarjeta(models.Model):
-    id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='tarjeta')
+    dni = models.IntegerField()
     numero = models.IntegerField()
     validez = models.DateField()
     titular = models.CharField(max_length=150)
     cvc = models.IntegerField()
     tipo = models.CharField(max_length=50)
+    monto = models.IntegerField()
 
 class DonacionProducto(models.Model):
     nombre_producto = models.CharField(max_length=100)
@@ -114,3 +115,18 @@ class DonacionProducto(models.Model):
     apellido_donante = models.CharField(max_length=100)
     # Se buscar en usuarios si esta registrado, si no este campo puede quedar blanco
     donante = models.ForeignKey(Usuario, on_delete=models.CASCADE, blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+
+class DonacionTarjeta(models.Model):
+    numero = models.IntegerField()
+    cvc = models.IntegerField()
+    monto = models.IntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+
+class DonacionEfectivo(models.Model):
+    dni = models.IntegerField()
+    monto = models.IntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
+

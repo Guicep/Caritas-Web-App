@@ -51,13 +51,13 @@
                     <strong>{{ comentario.usuario.nombre }} {{ comentario.usuario.apellido }}</strong>
                     <span class="comment-date" style="color: #666; font-size: 12px;">{{ comentario.fecha_creacion|date:"d M Y H:i" }}</span>
                     {% if not comentario.respondido %}
-                        {% if request.user == comentario.usuario or request.user.is_staff %}
+                        {% if request.user == comentario.usuario %}
                             <button class="btn btn-sm btn-warning editar-comentario-btn" data-id="{{ comentario.id }}">Editar</button>
                         {% endif %}
-                        {% if request.user == comentario.usuario %}
+                        {% if request.user == comentario.usuario or item.id_usuario == request.user.id and not comentario.respondido %}
                             <form action="{% url 'eliminar_comentario' comentario.id %}" method="post" style="display: inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                <button type="submit" class="btn btn-sm btn-danger delete-comment-btn" data-id="{{ comentario.id }}">Eliminar</button>
                             </form>
                         {% endif %}
                     {% endif %}
@@ -71,6 +71,17 @@
                         <div class="response-header" style="margin-bottom: 5px;">
                             <strong>{{ respuesta.usuario.nombre }} {{ respuesta.usuario.apellido }}</strong>
                             <span class="response-date" style="color: #666; font-size: 12px;">{{ respuesta.fecha_creacion|date:"d M Y H:i" }}</span>
+                            {% if not comentario.respondido %}
+                                {% if item.id_usuario == request.user.id %}
+                                    <button class="btn btn-sm btn-warning editar-comentario-btn" data-id="{{ comentario.id }}">Editar</button>
+                                {% endif %}
+                                {% if request.user == comentario.usuario or item.id_usuario == request.user.id and not comentario.respondido %}
+                                    <form action="{% url 'eliminar_comentario' comentario.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger delete-comment-btn" data-id="{{ comentario.id }}">Eliminar</button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
                         </div>
                         <div class="response-content" style="margin-bottom: 10px;">
                             <p>{{ respuesta.contenido }}</p>
@@ -78,7 +89,7 @@
                     </div>
                 {% endfor %}
                 <!-- Botón para abrir la ventana modal para responder -->
-                {% if not comentario.respondido and item.id_usuario == request.user.id and request.user.nombre == 'zidane' %}
+                {% if not comentario.respondido and item.id_usuario == request.user.id %}
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalResponder{{ comentario.id }}">
                         Responder
                     </button>
@@ -166,6 +177,24 @@
                 </div>
                 <div class="modal-body" id="editar-comentario-modal-body">
                     <!-- El contenido del formulario de edición se cargará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de éxito para eliminar comentario -->
+    <div class="modal fade" id="deleteSuccessModal" tabindex="-1" role="dialog" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteSuccessModalLabel">Comentario eliminado</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>El comentario ha sido eliminado con éxito.</p>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -276,9 +305,38 @@
         $('#editarSuccessModal').on('hidden.bs.modal', function () {
             window.location.reload();
         });
+
+        // JavaScript para manejar la eliminación de comentarios y mostrar el modal de éxito
+        var deleteButtons = document.querySelectorAll('.delete-comment-btn');
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var comentarioId = this.getAttribute('data-id');
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '{% url "eliminar_comentario" 0 %}'.replace('0', comentarioId), true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        $('#deleteSuccessModal').modal('show'); // Mostrar el modal de éxito para eliminación
+                        // Puedes agregar aquí cualquier otra acción después de la eliminación
+                    } else {
+                        alert('Error al eliminar el comentario.');
+                    }
+                };
+                xhr.send();
+            });
+        });
     });
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
 
 
 
