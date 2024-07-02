@@ -1,0 +1,66 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="section">
+        <h4>Inventario de productos</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if donaciones_productos %}
+                    {% for donacion in donaciones_productos %}
+                        <tr>
+                            <td>{{ donacion.nombre_producto }}</td>
+                            <td>{{ donacion.cantidad }}</td>
+                            <td>{{ donacion.fecha }}</td>
+                            <td>{{ donacion.nombre_donante }}</td>
+                            <td>{{ donacion.apellido_donante }}</td>
+                            <td>{% if donacion.donante %}{{ donacion.donante.email }}{% else %}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td> No hay productos para mostrar</td>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+<style>
+    .container {
+        display: flex;
+        justify-content: space-around;
+    }
+    .section {
+        flex: 1;
+        padding: 10px;
+        background-color: #a5d0d0;
+        margin: 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
+</style>
+{% endblock %}

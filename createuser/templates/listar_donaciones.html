@@ -2,100 +2,110 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <div class="section">
-        <h4>Donaciones de Productos</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Fecha</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for donacion in donaciones_productos %}
-                    <tr>
-                        <td>{{ donacion.nombre_producto }}</td>
-                        <td>{{ donacion.cantidad }}</td>
-                        <td>{{ donacion.fecha }}</td>
-                        <td>{{ donacion.nombre_donante }}</td>
-                        <td>{{ donacion.apellido_donante }}</td>
-                        <td>{% if donacion.donante %}{{ donacion.donante.email }}{% else %}{% endif %}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="section">
-        <h4>Donaciones con Tarjeta</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Monto</th>
-                    <th>Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for donacion in donaciones_tarjeta %}
-                    <tr>
-                        <td>{{ donacion.monto }}</td>
-                        <td>{{ donacion.fecha }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="section">
-        <h4>Donaciones en Efectivo</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Monto</th>
-                    <th>Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for donacion in donaciones_efectivo %}
-                    <tr>
-                        <td>{{ donacion.monto }}</td>
-                        <td>{{ donacion.fecha }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
 <style>
-    .container {
-        display: flex;
-        justify-content: space-around;
+    .donaciones-content {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
     }
-    .section {
-        flex: 1;
+
+    .donaciones-content h1 {
+        color: #4CAF50;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .donaciones-content form {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .donaciones-content label {
+        font-weight: bold;
+    }
+
+    .donaciones-content select, .donaciones-content button {
         padding: 10px;
-        background-color: #a5d0d0;
-        margin: 10px;
-        border: 1px solid #000;
+        margin-left: 10px;
         border-radius: 5px;
+        border: 1px solid #ccc;
     }
-    table {
-        width: 100%;
-        border-collapse: collapse;
+
+    .donaciones-content select:focus, .donaciones-content button:focus {
+        outline: none;
+        border-color: #4CAF50;
     }
-    th, td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-    th {
+
+    .donaciones-content button {
         background-color: #4CAF50;
         color: white;
+        cursor: pointer;
+    }
+
+    .donaciones-content button:hover {
+        background-color: #45a049;
+    }
+
+    .donaciones-content ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .donaciones-content li {
+        background-color: white;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .donaciones-content li:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .donaciones-content .no-donaciones {
+        text-align: center;
+        color: #999;
+        margin: 20px 0;
+        font-size: 1.2em;
     }
 </style>
+
+<div class="donaciones-content">
+    <h1>Listado de Donaciones del Día</h1>
+
+    <form method="get">
+        <label for="tipo">Filtrar por tipo de donación:</label>
+        <select name="tipo" id="tipo">
+            <option value="">Todos</option>
+            <option value="producto" {% if tipo == 'producto' %}selected{% endif %}>Producto</option>
+            <option value="tarjeta" {% if tipo == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
+            <option value="efectivo" {% if tipo == 'efectivo' %}selected{% endif %}>Efectivo</option>
+        </select>
+        <button type="submit">Filtrar</button>
+    </form>
+
+    {% if donaciones %}
+    <ul>
+        {% for donacion in donaciones %}
+            <li>
+                {% if donacion.nombre_producto %}
+                    <strong>Producto:</strong> {{ donacion.nombre_producto }} - <strong>Cantidad:</strong> {{ donacion.cantidad }} - <strong>Donante:</strong> {{ donacion.nombre_donante }} {{ donacion.apellido_donante }}
+                {% elif donacion.numero %}
+                    <strong>Tarjeta:</strong> Monto: {{ donacion.monto }} - <strong>Fecha:</strong> {{ donacion.fecha }}
+                {% elif donacion.dni %}
+                    <strong>Efectivo:</strong> Monto: {{ donacion.monto }} - <strong>DNI:</strong> {{ donacion.dni }} - <strong>Fecha:</strong> {{ donacion.fecha }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="no-donaciones">No hay donaciones para mostrar.</p>
+    {% endif %}
+</div>
 {% endblock %}
+
+
 

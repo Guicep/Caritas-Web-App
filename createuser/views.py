@@ -582,13 +582,31 @@ def registrar_donacion_efectivo(request):
     return render(request, 'registrar_donacion_efectivo.html', contexto)
 
 def listar_donaciones(request):
-    donaciones_productos = DonacionProducto.objects.all()
-    donaciones_tarjeta = DonacionTarjeta.objects.all()
-    donaciones_efectivo = DonacionEfectivo.objects.all()
-    
+    today = date.today()
+    donaciones_producto = DonacionProducto.objects.filter(fecha__date=today)
+    donaciones_tarjeta = DonacionTarjeta.objects.filter(fecha__date=today)
+    donaciones_efectivo = DonacionEfectivo.objects.filter(fecha__date=today)
+
+    tipo = request.GET.get('tipo')
+
+    if tipo == 'producto':
+        donaciones = donaciones_producto
+    elif tipo == 'tarjeta':
+        donaciones = donaciones_tarjeta
+    elif tipo == 'efectivo':
+        donaciones = donaciones_efectivo
+    else:
+        donaciones = list(donaciones_producto) + list(donaciones_tarjeta) + list(donaciones_efectivo)
+
     context = {
-        'donaciones_productos': donaciones_productos,
-        'donaciones_tarjeta': donaciones_tarjeta,
-        'donaciones_efectivo': donaciones_efectivo,
+        'donaciones': donaciones,
+        'tipo': tipo,
     }
     return render(request, 'listar_donaciones.html', context)
+
+def mostrar_inventario(request):
+    donaciones_productos = DonacionProducto.objects.all()
+    context = {
+        'donaciones_productos': donaciones_productos
+    }
+    return render(request, 'mostrar_inventario.html', context)
