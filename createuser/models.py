@@ -121,9 +121,11 @@ class DonacionTarjeta(models.Model):
     numero = models.IntegerField()
     cvc = models.IntegerField()
     monto = models.IntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
 
 
 class DonacionEfectivo(models.Model):
     dni = models.IntegerField()
     monto = models.IntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
 
