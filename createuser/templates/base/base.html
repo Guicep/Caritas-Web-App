@@ -12,15 +12,12 @@
     <!-- Cargar Bootstrap CSS desde un CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
-    <!-- Cargar jQuery desde un CDN -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <!-- Tu estilo personalizado -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
     <link rel="icon" href="{% static '/images/Logo.png' %}">
-
-    <!-- Font Awesome para los iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <style>
         /* Estilos adicionales */
@@ -115,7 +112,8 @@
     {% block content %} {% endblock %}
 </div>
 
-<!-- Cargar Bootstrap JS desde un CDN (al final del body) -->
+<!-- Cargar jQuery y Bootstrap JS desde un CDN (al final del body) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 {% block script %}{% endblock %}

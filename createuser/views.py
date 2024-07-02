@@ -503,7 +503,7 @@ def editar_perfil(request):
         form = EditProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('perfil')
+            return redirect(f"{request.path}?saved=true")
     else:
         form = EditProfileForm(instance=request.user)
     return render(request, 'editar_perfil.html', {'form': form})
