@@ -173,13 +173,21 @@ def detalle_publicacion(request, pk):
         form = ComentarioForm()
 
     respuesta_form = ComentarioForm()
+    suceso = "return confirm('¿Está seguro de borrar la publicación?')"
+    urlprox = "borrar"
+    print(usuarios_ofertantes.count())
+    if usuarios_ofertantes.count() > 0:
+        suceso = "return alert('No se puede borrar por que existe una o mas ofertas')"
+        urlprox = ""
 
     data = {
         'item': publicacion,
         'comentarios': comentarios,
         'form': form,
         'respuesta_form': respuesta_form,
-        'tiene_oferta' : request.user.id in usuarios_ofertantes,
+        'tiene_oferta': request.user.id in usuarios_ofertantes,
+        'suceso': suceso,
+        'urlprox': urlprox,
     }
     return render(request, 'detalle.html', data)
 
@@ -196,7 +204,8 @@ def borrar(request,pk):
     user = Usuario.objects.get(id=item.id_usuario)
     lista_cor = list()
     lista_cor.append(user.correo)
-
+    item.finalizada=True
+    item.save()
     #sql = "SELECT u.correo FROM createuser_oferta o INNER JOIN createuser_usuario u on o.id_ofertante = u.id WHERE o.id_publicacion = "+str(pk)
 
     #cursor = connection.cursor()
@@ -209,14 +218,14 @@ def borrar(request,pk):
     #            cad = cad+letra
 
     #    lista_cor.append(cad)
-    if(item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser):
-        send_mail(
-            "Publicacion Eliminada",
-            "Tu/la Publicacion: "+item.titulo+" a sido eliminada",
-            "settings.EMAIL_HOST_USER",
-            [lista_cor])
-        item.update(finalizada=True)
-        print("se envio correo a:", lista_cor)
+    #if(item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser):
+    #    send_mail(
+    #        "Publicacion Eliminada",
+    #        "Tu/la Publicacion: "+item.titulo+" a sido eliminada",
+    #        "settings.EMAIL_HOST_USER",
+    #        [lista_cor])
+    #    item.update(finalizada=True)
+    #    print("se envio correo a:", lista_cor)
     return redirect('ver_publicaciones')
 
 def ver_publicaciones(request):
