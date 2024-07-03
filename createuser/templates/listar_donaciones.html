@@ -92,7 +92,7 @@
         {% for donacion in donaciones %}
             <li>
                 {% if donacion.nombre_producto %}
-                    <strong>Producto:</strong> {{ donacion.nombre_producto }} - <strong>Cantidad:</strong> {{ donacion.cantidad }} - <strong>Donante:</strong> {{ donacion.nombre_donante }} {{ donacion.apellido_donante }}
+                    <strong>Producto:</strong> {{ donacion.nombre_producto }} - <strong>Cantidad:</strong> {{ donacion.cantidad }} - <strong>Donante:</strong> {{ donacion.nombre_donante }} {{ donacion.apellido_donante }} <strong>Fecha:</strong> {{ donacion.fecha }} 
                 {% elif donacion.numero %}
                     <strong>Tarjeta:</strong> Monto: {{ donacion.monto }} - <strong>Fecha:</strong> {{ donacion.fecha }}
                 {% elif donacion.dni %}
