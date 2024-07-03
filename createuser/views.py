@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, Tarjeta,DonacionProducto,DonacionEfectivo,DonacionTarjeta
+from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, Tarjeta,DonacionProducto,DonacionEfectivo,DonacionTarjeta, CodigosRecuperacion
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
-from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, IntercambioForm, TarjetaForm, DonacionProductoForm, EditProfileForm, DonacionTarjetaForm, DonacionEfectivoForm
+from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, TarjetaForm, DonacionProductoForm, EditProfileForm, DonacionTarjetaForm, DonacionEfectivoForm, RestablecerContraseñaForm, IngresarCodigoForm, CambiarContraseñaForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -118,7 +118,7 @@ def welcome(request):
     ofertas_usuario = Oferta.objects.filter(id_ofertante=request.user.id).values_list("pk", flat=True)
     resultados_ocultos_ofertante = Intercambio.objects.filter(id_ofertante__in=ofertas_usuario, estado='Pendiente').values_list("id_publicacion", flat=True)
     resultados_publicacion_ocultas = Publicacion.objects.filter(pk__in=resultados_ocultos_ofertante)
-    resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id).exclude(oculto=True) | resultados_publicacion_ocultas
+    resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id).exclude(oculto=True).exclude(finalizada=True) | resultados_publicacion_ocultas
     
     if q:
         resultados = resultados.filter(titulo__icontains=q)
@@ -174,13 +174,21 @@ def detalle_publicacion(request, pk):
         form = ComentarioForm()
 
     respuesta_form = ComentarioForm()
+    suceso = "return confirm('¿Está seguro de borrar la publicación?')"
+    urlprox = "borrar"
+    print(usuarios_ofertantes.count())
+    if usuarios_ofertantes.count() > 0:
+        suceso = "return alert('No se puede borrar por que existe una o mas ofertas')"
+        urlprox = ""
 
     data = {
         'item': publicacion,
         'comentarios': comentarios,
         'form': form,
         'respuesta_form': respuesta_form,
-        'tiene_oferta' : request.user.id in usuarios_ofertantes,
+        'tiene_oferta': request.user.id in usuarios_ofertantes,
+        'suceso': suceso,
+        'urlprox': urlprox,
     }
     return render(request, 'detalle.html', data)
 
@@ -195,29 +203,18 @@ def detalle_oferta(request,pk):
 def borrar(request,pk):
     item = Publicacion.objects.get(id=pk)
     user = Usuario.objects.get(id=item.id_usuario)
-    lista_cor = list()
-    lista_cor.append(user.correo)
-
-    #sql = "SELECT u.correo FROM createuser_oferta o INNER JOIN createuser_usuario u on o.id_ofertante = u.id WHERE o.id_publicacion = "+str(pk)
-
-    #cursor = connection.cursor()
-    #cursor.execute(sql)
-    #results = cursor.fetchall()
-    #for res in results:
-    #    cad = ""
-    #    for letra in res:
-    #        if not (letra=="(" or letra==")" or letra ==","):
-    #            cad = cad+letra
-
-    #    lista_cor.append(cad)
+    print(user.correo)
     if(item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser):
         send_mail(
             "Publicacion Eliminada",
-            "Tu/la Publicacion: "+item.titulo+" a sido eliminada",
+            "Tu Publicacion: "+item.titulo+" a sido eliminada",
             "settings.EMAIL_HOST_USER",
-            [lista_cor])
-        item.update(finalizada=True)
-        print("se envio correo a:", lista_cor)
+            [user.correo])
+        item.finalizada = True
+        item.save()
+        print("se envio correo a:", user.correo)
+    if request.user.is_staff:
+        return redirect('welcome')
     return redirect('ver_publicaciones')
 
 def ver_publicaciones(request):
@@ -358,13 +355,107 @@ def registrar_producto(request):
         # Si escribis un espacio en blanco, no lo guarda por que no es valido
         if context["forms"].is_valid():
             donacion_producto = context["forms"].save(commit=False)
-            if (request.POST["dni_donante"] != ''):
-                donador = Usuario.objects.filter(dni=request.POST["dni_donante"])
-                if (donador.exists()):
-                    donacion_producto.donante = donador.get()
+            donador = Usuario.objects.filter(dni=request.POST["dni_donante"])
+            if (donador.exists()):
+                donacion_producto.donante = donador.get()
             donacion_producto.save()
     context["forms"] = DonacionProductoForm()
     return render(request, 'registrar_producto.html', context)
+
+def restablecer_contraseña(request):
+    context = {}
+    if request.method == 'POST':
+        context['forms'] = IngresarCodigoForm()
+        correo_usuario = request.POST.get('correo')
+        usuario_actual = Usuario.objects.filter(correo=correo_usuario)
+        if usuario_actual.exists():
+            codigo_vigente = CodigosRecuperacion.objects.filter(usuario=usuario_actual.get()).exclude(vencido=True)
+            if codigo_vigente.exists():
+                codigo_vigente.update(vencido=True)
+            codigo_usuario = CodigosRecuperacion.objects.create(usuario=usuario_actual.get(), vencido=False)
+            resultado = CodigosRecuperacion.objects.filter(pk=codigo_usuario.pk)
+            resultado.update(codigo=100000+codigo_usuario.pk)
+            send_mail("Codigo de recuperacion de cuenta",
+                      "Su codigo es " + resultado.get().codigo,
+                      "settings.EMAIL_HOST_USER",
+                      [correo_usuario])
+            context['correo'] = correo_usuario
+        return render(request, 'confirmar_codigo.html', context)
+    else:
+        context['forms'] = RestablecerContraseñaForm()
+        return render(request, 'restablecer.html', context)
+    
+def validar_codigo(request):
+    context = {}
+    if request.method == 'POST':
+        context['forms'] = IngresarCodigoForm()
+        codigo_usuario = request.POST.get('codigo')
+        codigo_recuperacion = CodigosRecuperacion.objects.filter(codigo=codigo_usuario).exclude(vencido=True)
+        if codigo_recuperacion.exists():
+            codigo_recuperacion.update(vencido=True)
+            context['correo'] = request.POST.get('correo')
+            context['forms'] = CambiarContraseñaForm()
+            return render(request, 'cambiar_contraseña.html', context)
+        else:
+            context['mensaje'] = 'El código no pudo ser validado'
+            return render(request, 'confirmar_codigo.html', context)
+
+def cambiar_contraseña(request):
+    context = {}
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            valid = True
+            user = authenticate(request, username=request.user.correo, password=request.POST.get('contraseña_vieja'))
+            if user is None and valid:
+                valid = False
+                context['mensaje'] = 'La contraseña actual es erronea'
+                context['forms'] = CambiarContraseñaForm()
+            if request.POST.get('contraseña_vieja') == request.POST.get('contraseña_nueva') and valid:
+                valid = False
+                context['mensaje'] = 'La contraseña actual y la nueva son iguales'
+                context['forms'] = CambiarContraseñaForm()
+            if not password_with_six_or_more_char(request.POST.get('contraseña_nueva')) and valid:
+                valid = False
+                context['mensaje'] = 'La contraseña debe tener 6 o mas characteres'
+                context['forms'] = CambiarContraseñaForm()
+            if request.POST.get('contraseña_nueva') != request.POST.get('contraseña_repetida') and valid:
+                valid = False
+                context['mensaje'] = 'Las contraseñas nuevas no son iguales'
+                context['forms'] = CambiarContraseñaForm()
+            if not valid:  
+                return render(request, 'cambiar_contraseña.html', context)
+            actualizar_usuario = Usuario.objects.get(correo=request.user.correo)
+            actualizar_usuario.set_password(request.POST.get('contraseña_nueva'))
+            actualizar_usuario.save()
+            user = authenticate(request, username=request.user.correo
+                                , password=request.POST.get('contraseña_nueva'))
+            if user is not None:
+                login(request, user)
+            context['mensaje'] = 'La contraseña fue modificada con exito'
+            context['usuario'] = request.user
+            return render(request, 'perfil.html', context)
+        else:
+            valid = True
+            if not password_with_six_or_more_char(request.POST.get('contraseña_nueva')) and valid:
+                valid = False
+                context['mensaje'] = 'La contraseña debe tener 6 o mas caracteres'
+                context['forms'] = CambiarContraseñaForm()
+            if request.POST.get('contraseña_nueva') != request.POST.get('contraseña_repetida') and valid:
+                valid = False
+                context['mensaje'] = 'Las contraseñas nuevas no son iguales'
+                context['forms'] = CambiarContraseñaForm()
+            if not valid:
+                context['correo'] = request.POST.get('correo')
+                return render(request, 'cambiar_contraseña.html', context)
+            actualizar_usuario = Usuario.objects.get(correo=request.POST.get('correo'))
+            actualizar_usuario.set_password(request.POST.get('contraseña_nueva'))
+            actualizar_usuario.save()
+            context['mensaje'] = 'La contraseña fue modificada con exito'
+            context['forms'] = RestablecerContraseñaForm
+            return render(request, 'restablecer.html', context)
+    else:
+        context['forms'] = CambiarContraseñaForm()
+        return render(request, 'cambiar_contraseña.html', context)
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):
@@ -477,15 +568,12 @@ def editar_comentario(request, comentario_id):
 
 
 def eliminar_comentario(request, comentario_id):
-    comentario = get_object_or_404(Comentario, id=comentario_id)
+    comentario = get_object_or_404(Comentario, id=comentario_id,)
 
-    # Verificar que el usuario actual sea el autor del comentario
-    if request.user == comentario.usuario:
-        pk_actual=comentario.publicacion.pk
-        comentario.delete()
-        messages.success(request, 'El comentario ha sido eliminado correctamente.')
-    else:
-        messages.error(request, 'No tienes permiso para eliminar este comentario.')
+
+    
+    pk_actual=comentario.publicacion.pk
+    comentario.delete()
 
     # Redirigir a la página de detalle de la publicación u otra página relevante
     return redirect('detalle_publicacion', pk=pk_actual)
@@ -535,11 +623,6 @@ def editar_perfil(request):
         form = EditProfileForm(instance=request.user)
     return render(request, 'editar_perfil.html', {'form': form})
 
-
-def cambiar_contraseña(request):
-    return
-
-
 def registrar_donacion_tarjeta(request):
     mensaje = ''
     form = DonacionTarjetaForm()
@@ -583,14 +666,25 @@ def registrar_donacion_efectivo(request):
     return render(request, 'registrar_donacion_efectivo.html', contexto)
 
 def listar_donaciones(request):
-    donaciones_productos = DonacionProducto.objects.all()
-    donaciones_tarjeta = DonacionTarjeta.objects.all()
-    donaciones_efectivo = DonacionEfectivo.objects.all()
-    
+    today = date.today()
+    donaciones_producto = DonacionProducto.objects.filter(fecha__date=today)
+    donaciones_tarjeta = DonacionTarjeta.objects.filter(fecha__date=today)
+    donaciones_efectivo = DonacionEfectivo.objects.filter(fecha__date=today)
+
+    tipo = request.GET.get('tipo')
+
+    if tipo == 'producto':
+        donaciones = donaciones_producto
+    elif tipo == 'tarjeta':
+        donaciones = donaciones_tarjeta
+    elif tipo == 'efectivo':
+        donaciones = donaciones_efectivo
+    else:
+        donaciones = list(donaciones_producto) + list(donaciones_tarjeta) + list(donaciones_efectivo)
+
     context = {
-        'donaciones_productos': donaciones_productos,
-        'donaciones_tarjeta': donaciones_tarjeta,
-        'donaciones_efectivo': donaciones_efectivo,
+        'donaciones': donaciones,
+        'tipo': tipo,
     }
     return render(request, 'listar_donaciones.html', context)
 
@@ -602,3 +696,9 @@ class UserDetailView(DetailView):
 
     def get_object(self):
         return get_object_or_404(Usuario, id=self.kwargs.get('pk'))                                      
+def mostrar_inventario(request):
+    donaciones_productos = DonacionProducto.objects.all()
+    context = {
+        'donaciones_productos': donaciones_productos
+    }
+    return render(request, 'mostrar_inventario.html', context)
