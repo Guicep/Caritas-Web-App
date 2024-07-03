@@ -351,15 +351,19 @@ def confirmar_intercambio(request, id):
 def registrar_producto(request):
     context = {}
     if request.method == "POST":
-        context["forms"] = DonacionProductoForm(request.POST)
-        # Si escribis un espacio en blanco, no lo guarda por que no es valido
-        if context["forms"].is_valid():
-            donacion_producto = context["forms"].save(commit=False)
+        form = DonacionProductoForm(request.POST)
+        if form.is_valid():
+            donacion_producto = form.save(commit=False)
             donador = Usuario.objects.filter(dni=request.POST["dni_donante"])
-            if (donador.exists()):
+            if donador.exists():
                 donacion_producto.donante = donador.get()
             donacion_producto.save()
-    context["forms"] = DonacionProductoForm()
+            messages.success(request, "Producto registrado correctamente")
+            return redirect(reverse('registrar_producto') + '?success=True')
+    else:
+        form = DonacionProductoForm()
+
+    context["forms"] = form
     return render(request, 'registrar_producto.html', context)
 
 def restablecer_contraseña(request):
@@ -702,3 +706,27 @@ def mostrar_inventario(request):
         'donaciones_productos': donaciones_productos
     }
     return render(request, 'mostrar_inventario.html', context)
+
+
+
+def listar_donaciones_historica(request):
+    donaciones_producto = DonacionProducto.objects.all()
+    donaciones_tarjeta = DonacionTarjeta.objects.all()
+    donaciones_efectivo = DonacionEfectivo.objects.all()
+
+    tipo = request.GET.get('tipo')
+
+    if tipo == 'producto':
+        donaciones = donaciones_producto
+    elif tipo == 'tarjeta':
+        donaciones = donaciones_tarjeta
+    elif tipo == 'efectivo':
+        donaciones = donaciones_efectivo
+    else:
+        donaciones = list(donaciones_producto) + list(donaciones_tarjeta) + list(donaciones_efectivo)
+
+    context = {
+        'donaciones': donaciones,
+        'tipo': tipo,
+    }
+    return render(request, 'listar_donaciones_historica.html', context)

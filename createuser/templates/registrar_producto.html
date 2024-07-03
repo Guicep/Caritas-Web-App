@@ -1,5 +1,11 @@
-{% extends "base/base.html" %} {% block title %} Publicar producto {% endblock %}
+{% extends "base/base.html" %}
+{% block title %} Publicar producto {% endblock %}
 {% block content %}
+    {% if request.GET.success %}
+        <script>
+            alert("Producto registrado correctamente");
+        </script>
+    {% endif %}
     <form method="POST">
         {% csrf_token %}
         <div class="centered">

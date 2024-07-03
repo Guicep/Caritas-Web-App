@@ -1,0 +1,111 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .donaciones-content {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    .donaciones-content h1 {
+        color: #4CAF50;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .donaciones-content form {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .donaciones-content label {
+        font-weight: bold;
+    }
+
+    .donaciones-content select, .donaciones-content button {
+        padding: 10px;
+        margin-left: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .donaciones-content select:focus, .donaciones-content button:focus {
+        outline: none;
+        border-color: #4CAF50;
+    }
+
+    .donaciones-content button {
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    }
+
+    .donaciones-content button:hover {
+        background-color: #45a049;
+    }
+
+    .donaciones-content ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .donaciones-content li {
+        background-color: white;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .donaciones-content li:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .donaciones-content .no-donaciones {
+        text-align: center;
+        color: #999;
+        margin: 20px 0;
+        font-size: 1.2em;
+    }
+</style>
+
+<div class="donaciones-content">
+    <h1>Listado de Donaciones Historicas</h1>
+
+    <form method="get">
+        <label for="tipo">Filtrar por tipo de donación:</label>
+        <select name="tipo" id="tipo">
+            <option value="">Todos</option>
+            <option value="producto" {% if tipo == 'producto' %}selected{% endif %}>Producto</option>
+            <option value="tarjeta" {% if tipo == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
+            <option value="efectivo" {% if tipo == 'efectivo' %}selected{% endif %}>Efectivo</option>
+        </select>
+        <button type="submit">Filtrar</button>
+    </form>
+
+    {% if donaciones %}
+    <ul>
+        {% for donacion in donaciones %}
+            <li>
+                {% if donacion.nombre_producto %}
+                    <strong>Producto:</strong> {{ donacion.nombre_producto }} - <strong>Cantidad:</strong> {{ donacion.cantidad }} - <strong>Donante:</strong> {{ donacion.nombre_donante }} {{ donacion.apellido_donante }} <strong>Fecha:</strong> {{ donacion.fecha }} 
+                {% elif donacion.numero %}
+                    <strong>Tarjeta:</strong> Monto: {{ donacion.monto }} - <strong>Fecha:</strong> {{ donacion.fecha }}
+                {% elif donacion.dni %}
+                    <strong>Efectivo:</strong> Monto: {{ donacion.monto }} - <strong>DNI:</strong> {{ donacion.dni }} - <strong>Fecha:</strong> {{ donacion.fecha }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="no-donaciones">No hay donaciones para mostrar.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+
