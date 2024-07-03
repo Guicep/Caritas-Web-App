@@ -1,0 +1,17 @@
+{% extends "base/base.html" %}{% block title %}Restablecer contraseña{% endblock %}
+{% load static %}
+{% block content %}
+{% if mensaje %}
+    <div class="list-group-item">
+        <b>{{ mensaje }}</b>
+    </div>
+{% endif %}
+<div class="centered">
+    <b>Ingrese su correo para restablecer su contraseña</b><br><br>
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ forms.as_p }}<br>
+        <button class="btn btn-primary float" type="submit">Aceptar</button>
+    </form>
+</div>
+{% endblock %}

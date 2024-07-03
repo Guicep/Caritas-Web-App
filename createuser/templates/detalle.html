@@ -26,9 +26,15 @@
             {% endif %}
             {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
                 {% if not item.oculto %}
-                <a class="btn btn-danger" onclick="return confirm('¿Está seguro de borrar la publicación?')" href="{% url 'borrar' item.id %}">
+                    {% if urlprox == "borrar" %}
+                <a class="btn btn-danger" onclick="{{suceso}}" href="{% url 'borrar' item.id %}">
                     <span>Borrar</span>
                 </a>
+                    {% else %}
+                <a class="btn btn-danger" onclick="{{suceso}}" href="#">
+                    <span>Borrar</span>
+                </a>
+                    {% endif %}
                 {% endif %}
             {% endif %}
             {% if item.id_usuario != request.user.id and not request.user.is_superuser and not tiene_oferta %}
