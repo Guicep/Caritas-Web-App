@@ -117,7 +117,7 @@ def welcome(request):
     ofertas_usuario = Oferta.objects.filter(id_ofertante=request.user.id).values_list("pk", flat=True)
     resultados_ocultos_ofertante = Intercambio.objects.filter(id_ofertante__in=ofertas_usuario, estado='Pendiente').values_list("id_publicacion", flat=True)
     resultados_publicacion_ocultas = Publicacion.objects.filter(pk__in=resultados_ocultos_ofertante)
-    resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id).exclude(oculto=True) | resultados_publicacion_ocultas
+    resultados = Publicacion.objects.all().exclude(id_usuario=request.user.id).exclude(oculto=True).exclude(finalizada=True) | resultados_publicacion_ocultas
     
     if q:
         resultados = resultados.filter(titulo__icontains=q)
