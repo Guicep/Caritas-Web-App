@@ -45,6 +45,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     apellido = models.CharField(max_length=20)
     nacimiento = models.DateField()
     dni = models.CharField(max_length=8)
+    
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -54,7 +55,16 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'correo'
     EMAIL_FIELD = 'correo'
-    REQUIRED_FIELDS = ['nacimiento']
+    REQUIRED_FIELDS = ['nacimiento', 'nombre', 'apellido']
+
+    def get_full_name(self):
+        return f"{self.nombre} {self.apellido}"
+
+    def get_short_name(self):
+        return self.nombre
+
+    def __str__(self):
+        return self.get_full_name()
 
 
 def get_default_fecha_acordada():

@@ -5,6 +5,10 @@
 {% block content %}
 
     <ul class="list-group">
+        <li class="list-group-item">
+            <a class="btn btn-primary" href="{% url 'usuario_detalle' item.id_ofertante  %}">Perfil</a>
+            </a>
+        </li>
         <li class="list-group-item">{{ item.titulo }}</li>
         <li class="list-group-item">{{ item.cantidad }}</li>
         <li class="list-group-item">{{ item.descripcion }}</li>

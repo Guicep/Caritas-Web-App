@@ -1,0 +1,32 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <h5 class="card-header" style="background-color: #82d8bf; color: #fff;">{{ usuario.nombre }} {{ usuario.apellido }}</h5>
+                <div class="card-body" style="background-color: #f0f0f0;">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th style="width: 30%;">Correo</th>
+                            <td>{{ usuario.correo }}</td>
+                        </tr>
+                        <tr>
+                            <th style="width: 30%;">Nombre</th>
+                            <td>{{ usuario.nombre }}</td>
+                        </tr>
+                        <tr>
+                            <th style="width: 30%;">Apellido</th>
+                            <td>{{ usuario.apellido }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,11 +1,17 @@
 {% extends "base/base.html" %}
 {% block title %}Detalle de la Publicación{% endblock %}
 {% load static %}
-
 {% block content %}
     <ul class="list-group">
+        {% if item.id_usuario != request.user.id %}
+        <li class="list-group-item">
+            <a class="btn btn-primary" href="{% url 'usuario_detalle' item.id_usuario  %}">Perfil</a>
+            </a>
+        </li>
+        {% endif %}
+
         <li class="list-group-item">{{ item.titulo }}</li>
-        <li class="list-group-item"><img src="{% static 'images/' %}{{ item.foto }}"></li>
+        <li class="list-group-item"><img src="{% static 'images/' %}{{ item.foto }}" alt="Imagen"></li>
         <li class="list-group-item">{{ item.descripcion }}</li>
         <li class="list-group-item">{{ item.categoria }}</li>
         <li class="list-group-item">{{ item.fecha_publicacion }}</li>
@@ -39,7 +45,6 @@
             {% endif %}
         </li>
     </ul>
-
     <!-- Botón para mostrar comentarios -->
     <button id="toggleComentarios" class="btn btn-info mt-4">Mostrar Comentarios</button>
 

@@ -16,6 +16,7 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth import update_session_auth_hash
 from django.urls import reverse
+from django.views.generic import DetailView
 
 # Create your views here.
 def home(request):
@@ -592,3 +593,12 @@ def listar_donaciones(request):
         'donaciones_efectivo': donaciones_efectivo,
     }
     return render(request, 'listar_donaciones.html', context)
+
+
+class UserDetailView(DetailView):
+    model = Usuario
+    template_name = 'usuario_detalle.html'
+    context_object_name = 'usuario'
+
+    def get_object(self):
+        return get_object_or_404(Usuario, id=self.kwargs.get('pk'))                                      
