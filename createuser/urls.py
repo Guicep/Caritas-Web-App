@@ -32,7 +32,8 @@ urlpatterns = [
     path('cambiar_contraseña/', views.cambiar_contraseña, name='cambiar_contraseña'),
     path('registrar_donacion_tarjeta/', views.registrar_donacion_tarjeta, name='registrar_donacion_tarjeta'),
     path('registrar_donacion_efectivo/', views.registrar_donacion_efectivo, name='registrar_donacion_efectivo'),
+    path('restablecer_contraseña/', views.restablecer_contraseña, name='restablecer_contraseña'),
+    path('validar_codigo', views.validar_codigo, name='validar_codigo'),
     path('listar-donaciones/', views.listar_donaciones, name='listar_donaciones'),
     path('mostrar_inventario/', views.mostrar_inventario, name='mostrar_inventario'),
-
 ]

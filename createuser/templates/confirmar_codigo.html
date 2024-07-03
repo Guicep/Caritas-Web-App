@@ -1,0 +1,21 @@
+{% extends "base/base.html" %}{% block title %}Confirmar codigo{% endblock %}
+{% load static %}
+{% block content %}
+<div class="list-group-item">
+    <b>Si el correo existe le llegara un código a la bandeja para restablecer la contraseña</b><br><br>
+</div>
+{% if mensaje %}
+<div class="list-group-item">
+    <b>{{ mensaje }}</b>
+</div>
+{% endif %}
+<div class="centered">
+    <form action="{% url 'validar_codigo' %}" method="POST">
+        {% csrf_token %}
+        <b>Ingrese el codigo</b>
+        {{ forms.as_p }}<br>
+        <input type="hidden" value={{correo}} name="correo" > 
+        <button class="btn btn-primary float" type="submit">Aceptar</button>
+    </form>
+</div>
+{% endblock %}

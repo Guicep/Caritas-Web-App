@@ -130,3 +130,11 @@ class DonacionEfectivo(models.Model):
     monto = models.IntegerField()
     fecha = models.DateTimeField(auto_now_add=True)
 
+class CodigosRecuperacion(models.Model):
+    codigo = models.CharField(max_length=6)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    vencido = models.BooleanField()
+
+    def __str__(self) -> str:
+        return self.codigo
+
