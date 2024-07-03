@@ -188,19 +188,37 @@
         </div>
     </div>
 
-    <!-- Modal de éxito para eliminar comentario -->
-    <div class="modal fade" id="deleteSuccessModal" tabindex="-1" role="dialog" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteSuccessModalLabel">Comentario eliminado</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Eliminar comentario</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
+                    Esta seguro que desea eliminar el comentario?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button id="confirmDeleteBtn" type="button" class="btn btn-primary">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de éxito para eliminar comentarios -->
+    <div class="modal fade" id="deleteSuccessModal" tabindex="-1" role="dialog" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteSuccessModalLabel">Comentario eliminado</h5>
+                </div>
+                <div class="modal-body">
                     <p>El comentario ha sido eliminado con éxito.</p>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -322,10 +340,12 @@
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 xhr.onload = function() {
                     if (xhr.status === 200) {
-                        $('#deleteSuccessModal').modal('show'); // Mostrar el modal de éxito para eliminación
+                         // Mostrar el modal de éxito para eliminación
                         // Puedes agregar aquí cualquier otra acción después de la eliminación
+                        $('#exampleModal').modal('hide');
+                        $('#deleteSuccessModal').modal('show');
                     } else {
-                        alert('Comentario eliminado');
+                        alert('El comentario fue eliminado con exito');
                     }
                 };
                 xhr.send();
@@ -334,6 +354,11 @@
     });
 </script>
 {% endblock %}
+
+
+
+
+
 
 
 
