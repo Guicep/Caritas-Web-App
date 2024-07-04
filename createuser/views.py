@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, Tarjeta,DonacionProducto,DonacionEfectivo,DonacionTarjeta, CodigosRecuperacion
+from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, Tarjeta,DonacionProducto,DonacionEfectivo,DonacionTarjeta, CodigosRecuperacion, ReseniasHabilitadas
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from .forms import UsuarioForm, PublicacionForm, LoginForm, StaffForm, ComentarioForm, TarjetaForm, DonacionProductoForm, EditProfileForm, DonacionTarjetaForm, DonacionEfectivoForm, RestablecerContraseñaForm, IngresarCodigoForm, CambiarContraseñaForm
@@ -52,7 +52,6 @@ def register(request):
             return render(request, "registration/register.html", context)
     else:
         context = {"forms" : UsuarioForm()}
-        # send_mail("Hola", "Buenas :)", "settings.EMAIL_HOST_USER", ["mateoalmaraz2000@gmail.com"])
         return render(request, "registration/register.html", context)
 
 def staffregister(request):
@@ -176,13 +175,13 @@ def detalle_publicacion(request, pk):
     respuesta_form = ComentarioForm()
     suceso = "return confirm('¿Está seguro de borrar la publicación?')"
     urlprox = "borrar"
-    print(usuarios_ofertantes.count())
     if usuarios_ofertantes.count() > 0:
         suceso = "return alert('No se puede borrar por que existe una o mas ofertas')"
         urlprox = ""
-
+    intercambio = Intercambio.objects.filter(id_publicacion=publicacion.pk).exclude(estado="Cancelado")
     data = {
         'item': publicacion,
+        'item2': intercambio.get(),
         'comentarios': comentarios,
         'form': form,
         'respuesta_form': respuesta_form,
@@ -309,14 +308,42 @@ def oferta_rechazada(request):
     return redirect('ofertas', pk=publicacion.get().pk)
 
 def cancelar_intercambio(request, id):
-    intercambio = Intercambio.objects.filter(id_publicacion=id).exclude(estado='Cancelado')
-    publicacion = Publicacion.objects.filter(pk=id)
+    print(id)
+    context = {}
+    intercambio = Intercambio.objects.filter(id=id).exclude(estado='Cancelado')
+    publicacion = Publicacion.objects.filter(pk=intercambio.get().id_publicacion)
     oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
     publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
     ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
     intercambio.update(motivo_cancelacion=request.POST.get('motivo'))
     publicacion.update(oculto=False)
     oferta.update(finalizada=True)
+    reseña_ambos = ReseniasHabilitadas(publicante = publicante.get(),
+                                    ofertante = ofertante.get(),
+                                    publicante_habilitado=True,
+                                    ofertante_habilitado=True,)
+    reseña_ambos.save()
+    if request.POST.get('habilita_publicante'):
+        send_mail('Califique al usuario de la oferta: ' + oferta.get().titulo,
+                  'Fue habilitado para calificar al usuario ' + ofertante.get().nombre + 
+                  ' lo puede hacer en el siguiente link:\n' +
+                  'http://127.0.0.1:8000/calificar_usuario/?pk_o='+str(ofertante.get().pk)+'&review='+str(reseña_ambos.pk),
+                  'settings.EMAIL_HOST_USER',
+                  [publicante.get().correo])
+    else:
+        reseña_ambos.publicante_habilitado = False
+        reseña_ambos.save()
+
+    if request.POST.get('habilita_ofertante'):
+        send_mail('Califique al usuario de la publicacion: ' + publicacion.get().titulo,
+                  'Fue habilitado para calificar al usuario ' + publicante.get().nombre + 
+                  ' lo puede hacer en el siguiente link:\n' +
+                  'http://127.0.0.1:8000/calificar_usuario/?pk_p='+str(publicante.get().pk)+'&review='+str(reseña_ambos.pk),
+                  'settings.EMAIL_HOST_USER',
+                  [ofertante.get().correo])
+    else:
+        reseña_ambos.ofertante_habilitado = False
+        reseña_ambos.save()
     send_mail(
         "Intercambio "+intercambio.get().codigo_intercambio+" cancelado",
         "El intercambio con codigo: " + intercambio.get().codigo_intercambio
@@ -324,29 +351,50 @@ def cancelar_intercambio(request, id):
         "settings.EMAIL_HOST_USER", 
         [publicante.get().correo, ofertante.get().correo])
     intercambio.update(estado="Cancelado")
-    return redirect('welcome')
+    context['mensaje'] = 'Cancelacion hecha con exito'
+    return render(request, 'welcome.html', context)
+
+def confirmar(request, id):
+    context = {'id' : id}
+    return render(request, "confirmar.html", context)
 
 def confirmar_intercambio(request, id):
-
+    context = {}
     intercambio = Intercambio.objects.filter(pk=id, estado='Pendiente')
-    
     # Actualizar estado de oferta y publicación
     oferta = Oferta.objects.filter(pk=intercambio.get().id_ofertante)
     publicacion = Publicacion.objects.filter(pk=intercambio.get().id_publicacion)
     ofertante = Usuario.objects.filter(pk=oferta.get().id_ofertante)
     publicante = Usuario.objects.filter(pk=publicacion.get().id_usuario)
+    reseña_ambos = ReseniasHabilitadas(publicante = publicante.get(),
+                                    ofertante = ofertante.get(),
+                                    publicante_habilitado=True,
+                                    ofertante_habilitado=True,)
+    reseña_ambos.save()
     send_mail(
         "Intercambio "+intercambio.get().codigo_intercambio+" confirmado!",
         "El intercambio con codigo: " + intercambio.get().codigo_intercambio
         +" a sido confirmado! gracias por utilizar nuestro servicio\n"
-        +"Dejale una puntuacion al usuario de como fue la experiencia del intercambio el el siguiente link!\n"
-        +"aca va el link, si tuviera uno", 
+        +"En breve le llegara otro mail para calificar al otro usuario mediante un enlace", 
         "settings.EMAIL_HOST_USER", 
         [publicante.get().correo, ofertante.get().correo])
+    send_mail('Califique al usuario de la publicacion: ' + publicacion.get().titulo,
+        'Fue habilitado para calificar al usuario ' + publicante.get().nombre + 
+        ' lo puede hacer en el siguiente link:\n' +
+        'http://127.0.0.1:8000/calificar_usuario/?pk_p='+str(publicante.get().pk)+'&review='+str(reseña_ambos.pk),
+        'settings.EMAIL_HOST_USER',
+        [ofertante.get().correo])
+    send_mail('Califique al usuario de la oferta: ' + oferta.get().titulo,
+        'Fue habilitado para calificar al usuario ' + ofertante.get().nombre + 
+        ' lo puede hacer en el siguiente link:\n' +
+        'http://127.0.0.1:8000/calificar_usuario/?pk_o='+str(ofertante.get().pk)+'&review='+str(reseña_ambos.pk),
+        'settings.EMAIL_HOST_USER',
+        [publicante.get().correo])
     publicacion.update(finalizada=True)
     oferta.update(finalizada=True)
     intercambio.update(estado="Confirmado")
-    return redirect('welcome')
+    context['mensaje'] = 'Confirmacion hecha con exito'
+    return render(request, 'welcome.html', context)
 
 def registrar_producto(request):
     context = {}
@@ -460,6 +508,45 @@ def cambiar_contraseña(request):
     else:
         context['forms'] = CambiarContraseñaForm()
         return render(request, 'cambiar_contraseña.html', context)
+
+@login_required
+def calificar_usuario(request):
+    context = {}
+    if request.method == 'POST':
+        resenia_habilitada = ReseniasHabilitadas.objects.get(pk=request.POST.get('review'))
+        if request.POST.get('pk_o'):
+            ofertante = Usuario.objects.get(pk=request.POST.get('pk_o'))
+            ofertante.calificaciones_recibidas = ofertante.calificaciones_recibidas + 1
+            ofertante.calificaciones_puntaje = ofertante.calificaciones_puntaje + int(request.POST.get('calificacion'))
+            ofertante.calificacion_promedio = ofertante.calificaciones_puntaje / ofertante.calificaciones_recibidas
+            ofertante.save()
+            resenia_habilitada.publicante_habilitado = False
+            resenia_habilitada.save()
+        else:
+            publicante = Usuario.objects.get(pk=request.POST.get('pk_p'))
+            publicante.calificaciones_recibidas = publicante.calificaciones_recibidas + 1
+            publicante.calificaciones_puntaje = publicante.calificaciones_puntaje + int(request.POST.get('calificacion'))
+            publicante.calificacion_promedio = publicante.calificaciones_puntaje / publicante.calificaciones_recibidas
+            publicante.save()
+            resenia_habilitada.ofertante_habilitado = False
+            resenia_habilitada.save()
+        context['mensaje'] = 'Gracias por contrubuir con su puntuacion!'
+        return render(request, 'calificar_usuario.html', context)
+    else:
+        resenia_habilitada = ReseniasHabilitadas.objects.get(pk=request.GET.get('review'))
+        if request.GET.get('pk_o'):
+            if resenia_habilitada.publicante_habilitado:
+                context['habilitado'] = True
+            else:
+                context['habilitado'] = False
+                context['mensaje'] = 'Usted ya califico al usuario'
+        else:
+            if resenia_habilitada.ofertante_habilitado:
+                context['habilitado'] = True
+            else:
+                context['habilitado'] = False
+                context['mensaje'] = 'Usted ya califico al usuario'
+        return render(request, 'calificar_usuario.html', context)
 
 # Funciones de validacion y transformacion
 def password_with_six_or_more_char(cadena):

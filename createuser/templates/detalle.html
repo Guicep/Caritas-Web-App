@@ -27,8 +27,8 @@
             {% if item.oculto %}
                 <button class="btn btn-danger" onclick="mostrarCancelar()">
                     Cancelar intercambio
-                </button> 
-                {% include 'cancelar_int.html' with id=item.id %}
+                </button>
+                {% include 'cancelar_int.html' with id=item2.id %}
             {% endif %}
             {% if item.id_usuario == request.user.id or request.user.is_staff or request.user.is_superuser %}
                 {% if not item.oculto %}

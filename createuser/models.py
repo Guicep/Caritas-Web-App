@@ -46,6 +46,9 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nacimiento = models.DateField()
     dni = models.CharField(max_length=8)
     
+    calificaciones_recibidas = models.IntegerField(default=0)
+    calificaciones_puntaje = models.IntegerField(default=0)
+    calificacion_promedio = models.FloatField(default=0)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -147,4 +150,9 @@ class CodigosRecuperacion(models.Model):
 
     def __str__(self) -> str:
         return self.codigo
-
+    
+class ReseniasHabilitadas(models.Model):
+    publicante = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='publicante')
+    ofertante = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='ofertante')
+    publicante_habilitado = models.BooleanField()    
+    ofertante_habilitado = models.BooleanField()

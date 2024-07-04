@@ -36,6 +36,10 @@
                             <th style="width: 30%;">DNI</th>
                             <td>{{ user.dni }}</td>
                         </tr>
+                        <tr>
+                            <th style="width: 30%;">Calificación</th>
+                            <td>{{ user.calificacion_promedio|floatformat:1 }}</td>
+                        </tr>
                     </table>
                     <div class="text-center mt-3">
                         <a href="{% url 'editar_perfil' %}" class="btn btn-custom" style="background-color: #82d8bf; border-color: #82d8bf;">Editar Datos</a>

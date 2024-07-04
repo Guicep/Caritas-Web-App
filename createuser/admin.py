@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, DonacionProducto, DonacionEfectivo, CodigosRecuperacion
+from .models import Usuario, Publicacion, Oferta, Intercambio, Comentario, DonacionProducto, DonacionEfectivo, CodigosRecuperacion, ReseniasHabilitadas
 
 
 # Register your models here.
@@ -12,4 +12,5 @@ admin.site.register(Comentario)
 admin.site.register(DonacionProducto)
 admin.site.register(DonacionEfectivo)
 admin.site.register(CodigosRecuperacion)
+admin.site.register(ReseniasHabilitadas)
 

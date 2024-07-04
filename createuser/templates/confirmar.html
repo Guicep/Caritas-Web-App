@@ -1,0 +1,18 @@
+{% extends "base/base.html" %}{% block title %}Cancelar intercambio{% endblock %}
+{% load static %}
+{% block content %}
+
+<ul class="list-group">
+        <li class="list-group-item">
+            <b>Esta seguro que desea cancelar el intercambio?</b>
+                <a class="btn btn-primary float-right" href="{% url 'listar_intercambios'%}">
+                    No, quiero cancelar
+                </a>
+                <button class="btn btn-danger float-right" onclick="mostrarCancelar()">
+                    Si, quiero
+                </button>
+                {% include 'cancelar_int.html' with id=id %}
+            <br>
+        </li>
+</ul>
+{% endblock %}
