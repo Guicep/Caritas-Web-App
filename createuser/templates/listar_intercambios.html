@@ -1,15 +1,15 @@
 {% extends "base/base.html" %} {% block title %} Bienvenido {% endblock %}
 {% block content %}
-    {% if codigos%}
+    {% if codigos %}
         <ul class="list-group">
             <li class="list-group-item">Codigos de intercambios pendientes del dia:</li>
         {% for item in codigos %}
             <li class="list-group-item">
                 Codigo: {{item.codigo_intercambio}}
-                <button class="btn btn-danger float-right" onclick="mostrarCancelar()">
-                    Cancelar
-                </button>
-                {% include 'cancelar_int.html' with id=item.id_publicacion %}
+                <!--<button class="btn btn-danger float-right" onclick="mostrarCancelar()">-->
+                <a class="btn btn-danger float-right" href="{% url 'confirmar' item.id %}">
+                    Cancelar por motivo
+                </a>
                 <a class="btn btn-primary float-right" onclick="return confirm('Esta seguro?')" href="{% url 'confirmar_intercambio' item.id %}">Confirmar</a>
             <br>
             </li>
@@ -18,5 +18,4 @@
     {% else %}
         No hay codigos para mostrar.
     {% endif %}        
-        
 {% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base/base.html" %}{% block title %}Calificar usuario{% endblock %}
+{% load static %}
+{% block content %}
+{% if habilitado %}
+<div class="centered">
+    <form method="POST" action="{% url 'calificar_usuario'%}">
+        {% csrf_token %}
+        <select name="calificacion" class="filter-selectbox">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select><br><br>
+        
+        <input type="hidden" value={{request.GET.pk_o}} name="pk_o">
+        <input type="hidden" value={{request.GET.pk_p}} name="pk_p">
+        <input type="hidden" value={{request.GET.review}} name="review">
+        <button class="btn btn-primary float" type="submit">Aceptar</button>
+    </form>
+</div>
+{% else %}
+<div class="list-group-item">
+    <b>{{ mensaje }}</b>
+</div>
+{% endif %}
+{% endblock %}

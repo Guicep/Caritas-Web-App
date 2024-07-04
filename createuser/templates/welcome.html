@@ -40,7 +40,16 @@
         </ul>
     {% else %}
         <!-- Mensaje si no se encontraron resultados -->
-        <p>Sin publicaciones.</p>
+        <div class="list-group-item">
+            <b>Sin publicaciones</b>
+        </div>
     {% endif %}
 {% endif %}
+
+{% if mensaje %}
+<div class="list-group-item">
+    <b>{{ mensaje }}</b>
+</div>
+{% endif %}
+
 {% endblock %}

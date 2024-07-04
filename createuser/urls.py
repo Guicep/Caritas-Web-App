@@ -38,4 +38,6 @@ urlpatterns = [
     path('mostrar_inventario/', views.mostrar_inventario, name='mostrar_inventario'),
     path('usuario/<int:pk>/', views.UserDetailView.as_view(), name='usuario_detalle'),
     path('listar_donaciones_historica/', views.listar_donaciones_historica, name='listar_donaciones_historica'),
+    path('calificar_usuario/', views.calificar_usuario, name='calificar_usuario'),
+    path('confirmar/<int:id>', views.confirmar, name='confirmar'),
 ]
