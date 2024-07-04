@@ -116,7 +116,7 @@
                                         {% csrf_token %}
                                         {{ respuesta_form.as_p }}
                                         <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
-                                        <button type="submit" name="respuesta" class="btn btn-primary">Comentar</button>
+                                        <button type="submit" onclick="alert('El comentario se publico con exito')" name="respuesta" class="btn btn-primary">Comentar</button>
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                                     </form>
                                 </div>
