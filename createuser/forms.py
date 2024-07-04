@@ -185,9 +185,9 @@ class EditProfileForm(forms.ModelForm):
 
 class DonacionTarjetaForm(forms.ModelForm):
     # Configuracion de los inputs como en html
-    textInput_numero = TextInput(attrs={"type": "number", "maxlength": 16})
-    textInput_cvc = TextInput(attrs={"type": "number", "maxlength": 4})
-    textInput_monto = TextInput(attrs={"type": "number", "maxlength": 15})
+    textInput_numero = TextInput(attrs={"type": "number", "maxlength": 16, "min": 0})
+    textInput_cvc = TextInput(attrs={"type": "number", "maxlength": 4, "min": 0})
+    textInput_monto = TextInput(attrs={"type": "number", "maxlength": 15, "min": 0})
 
     # Asignacion de la configuracion
     numero = forms.CharField(widget=textInput_numero, label='numero de tarjeta')
@@ -201,8 +201,8 @@ class DonacionTarjetaForm(forms.ModelForm):
 
 class DonacionEfectivoForm(forms.ModelForm):
     # Configuracion de los inputs como en html
-    textInputDNI = TextInput(attrs={"placeholder": "DNI", "maxlength": 8})
-    textInput_monto = TextInput(attrs={"type": "number", "maxlength": 15})
+    textInputDNI = TextInput(attrs={"placeholder": "DNI", "maxlength": 8, "min": 0})
+    textInput_monto = TextInput(attrs={"type": "number", "maxlength": 15, "min": 0})
 
     # Asignacion de la configuracion
     dni = forms.CharField(widget=textInputDNI, label='Dni')
