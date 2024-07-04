@@ -178,10 +178,14 @@ def detalle_publicacion(request, pk):
     if usuarios_ofertantes.count() > 0:
         suceso = "return alert('No se puede borrar por que existe una o mas ofertas')"
         urlprox = ""
-    intercambio = Intercambio.objects.filter(id_publicacion=publicacion.pk).exclude(estado="Cancelado")
+    intercambio_query = Intercambio.objects.filter(id_publicacion=publicacion.pk).exclude(estado="Cancelado")
+    if intercambio_query.exists():
+        intercambio = intercambio_query.get()
+    else:
+        intercambio = None
     data = {
         'item': publicacion,
-        'item2': intercambio.get(),
+        'item2': intercambio,
         'comentarios': comentarios,
         'form': form,
         'respuesta_form': respuesta_form,
